@@ -65,21 +65,21 @@ Magic Hour's official docs describe free signup credits, the free-tier default m
 ### One-time setup
 
 1. Create a free Magic Hour developer account at https://magichour.ai/developer. Do not add a card or start a paid plan. Create an API key and keep it private.
-2. Create or use a Supabase project. Install the Supabase CLI and open a terminal in this repository.
+2. Create or use a Supabase project. On Windows, if Node.js 20+ is installed, open PowerShell in this repository and install the CLI locally with `npm install supabase --save-dev`. Use `npx supabase` for the commands below. Alternatively, install the CLI with Scoop using the official Supabase CLI instructions.
 3. Sign in and link your Supabase project:
    ```powershell
-   supabase login
-   supabase link --project-ref YOUR_SUPABASE_PROJECT_REF
+   npx supabase login
+   npx supabase link --project-ref YOUR_SUPABASE_PROJECT_REF
    ```
 4. Generate a long random private access token using a password manager. Set the two secrets in your terminal environment (replace the values locally; never commit them):
    ```powershell
    $env:MAGIC_HOUR_API_KEY="paste-your-Magic-Hour-key-here"
    $env:CINE_ACCESS_TOKEN="paste-a-long-random-private-token-here"
-   supabase secrets set MAGIC_HOUR_API_KEY=$env:MAGIC_HOUR_API_KEY CINE_ACCESS_TOKEN=$env:CINE_ACCESS_TOKEN
+   npx supabase secrets set MAGIC_HOUR_API_KEY=$env:MAGIC_HOUR_API_KEY CINE_ACCESS_TOKEN=$env:CINE_ACCESS_TOKEN
    ```
 5. Deploy the function:
    ```powershell
-   supabase functions deploy cine-video --no-verify-jwt
+   npx supabase functions deploy cine-video --no-verify-jwt
    ```
 6. Copy the function URL. It looks like:
    `https://YOUR_PROJECT_REF.supabase.co/functions/v1/cine-video`
