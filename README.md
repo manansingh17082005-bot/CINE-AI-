@@ -44,3 +44,50 @@ Local video generation can be demanding. A laptop with 8 GB RAM and integrated g
 
 ## Privacy
 Projects are saved in this browser's local storage. Export JSON for backup. Do not enter confidential material into a public or shared computer.
+
+
+## V3: free-tier AI video generation
+
+V3 adds a real text-to-video clip workflow through Magic Hour's API, routed through a Supabase Edge Function. The browser never receives the Magic Hour API key.
+
+### Free-only safety rules
+- The server checks the Magic Hour account before each request and refuses generation unless the account tier is `free` and there is no active subscription.
+- The server always fixes the model to `ltx-2.5`, resolution to `480p`, duration to `5 seconds`, and audio off. The browser cannot override those settings.
+- If the account has no credits, the function returns an error and does not switch to a paid model.
+- Do not add a payment method, activate a subscription, buy credit packs, or enable usage-based billing if you want to keep this at zero cost. Free signup credits are limited and provider terms can change.
+- This is clip generation, not a finished long-form MP4 editor. Each scene currently produces one 5-second clip. Full film assembly, audio mix and subtitles are later milestones.
+
+Magic Hour's official docs describe free signup credits, the free-tier default model (LTX-2.5), and the account endpoint that exposes tier and available credits:
+- https://magichour.ai/api/text-to-video
+- https://docs.magichour.ai/tools/video/text-to-video
+- https://docs.magichour.ai/api-reference/account/get-account-details
+
+### One-time setup
+
+1. Create a free Magic Hour developer account at https://magichour.ai/developer. Do not add a card or start a paid plan. Create an API key and keep it private.
+2. Create or use a Supabase project. Install the Supabase CLI and open a terminal in this repository.
+3. Sign in and link your Supabase project:
+   ```powershell
+   supabase login
+   supabase link --project-ref YOUR_SUPABASE_PROJECT_REF
+   ```
+4. Generate a long random private access token using a password manager. Set the two secrets in your terminal environment (replace the values locally; never commit them):
+   ```powershell
+   $env:MAGIC_HOUR_API_KEY="paste-your-Magic-Hour-key-here"
+   $env:CINE_ACCESS_TOKEN="paste-a-long-random-private-token-here"
+   supabase secrets set MAGIC_HOUR_API_KEY=$env:MAGIC_HOUR_API_KEY CINE_ACCESS_TOKEN=$env:CINE_ACCESS_TOKEN
+   ```
+5. Deploy the function:
+   ```powershell
+   supabase functions deploy cine-video --no-verify-jwt
+   ```
+6. Copy the function URL. It looks like:
+   `https://YOUR_PROJECT_REF.supabase.co/functions/v1/cine-video`
+7. Open the GitHub Pages site, enter the function URL and the same private CINE access token in the Video Engine section, choose **Save video connection**, then **Test connection**.
+8. Generate a screenplay, then click **Generate 5-sec AI clip** on a scene.
+
+### Security notes
+- `MAGIC_HOUR_API_KEY` and `CINE_ACCESS_TOKEN` belong only in Supabase Function secrets. Never paste them into `index.html`, GitHub, screenshots, or chat.
+- The private CINE access token is stored in the current browser tab's session storage, not committed to the repository. Anyone who knows that token can use the proxy, so keep it private and rotate it if exposed.
+- The function accepts requests only from this GitHub Pages origin and checks the private token server-side.
+- The free-tier check prevents use when the account has a paid subscription. It cannot distinguish free signup credits from credit packs purchased on a free-tier account; do not purchase credits if you require zero spend.
