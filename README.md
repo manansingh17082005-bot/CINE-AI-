@@ -1,32 +1,37 @@
 # CINE AI
 
-A zero-cost, browser-based film production workspace. V1 helps you organise a film project; it does not generate AI video by itself.
+**One prompt → a complete animated-movie storyboard.**
+
+CINE AI V1 is a GitHub Pages-ready prompt-to-storyboard studio. It accepts one movie idea, selected animation style, duration (1–3 minutes), aspect ratio and dialogue language. It produces a scene-by-scene plan with visual prompts, camera guidance, audio notes and transitions.
 
 ## V1 features
-- Project title and description
-- Screenplay upload (TXT / Markdown) and scene breakdown
-- Character reference library
-- Editable cinematic prompts with copy action
-- Local generated-clip library
-- Export project data as JSON
+- One-prompt movie planning
+- Multiple visual styles: 3D, 2D, anime, realistic, stop motion and storybook
+- 1–3 minute short-film plans
+- Optional local AI expansion through Ollama (default model: llama3.2)
+- Built-in fallback storyboard planner if Ollama is unavailable
+- Editable scene prompts, copy actions and JSON export
+- Browser-local save
 
-## Run locally
-Open `index.html` in a modern browser. No build step or package installation is required.
+## Run / publish
+No build tools or package installation are required.
+- Local: open `index.html` in a modern browser.
+- GitHub Pages: Settings → Pages → Deploy from a branch → `main` → `/(root)` → Save.
 
-## Publish with GitHub Pages
-1. Open the repository **Settings → Pages**.
-2. Under **Build and deployment**, choose **Deploy from a branch**.
-3. Select branch **main** and folder **/(root)**, then Save.
-4. Wait for GitHub Pages to publish. The site URL will appear on the Pages settings screen.
+## Optional local AI with Ollama
+1. Install and start Ollama on your computer.
+2. Download a model, for example: `ollama pull llama3.2`.
+3. Keep the Ollama server running.
+4. Open CINE AI and use **Test local AI connection**.
+5. If the browser blocks the connection, configure Ollama's allowed origins to include your exact GitHub Pages origin, then restart Ollama. Do not expose the Ollama port publicly.
 
-## Privacy and storage
-V1 stores project data in the browser's local storage. It is not uploaded to a server. Use **Export project** to make a backup. Browser storage is limited; keep reference images and clips small. Clearing browser site data can erase local projects.
+The browser talks to Ollama at `http://localhost:11434`. This is optional; the built-in planner works without it.
 
-## Important: video generation
-GitHub Pages hosts the interface; it does not run a video-generation model. A later version can integrate an external video-generation API or a model hosted elsewhere. Free tiers, credits, usage limits, and commercial rights vary by provider. Never put private API keys in frontend JavaScript or a public repository.
+## Important: what V1 does and does not do
+V1 generates the **storyboard and video-generation prompts**, not rendered animated MP4 files. Actual video synthesis requires a video model. GitHub Pages is static hosting and cannot run a large video model or securely hold a private API key.
 
-## Roadmap
-- V1: production workspace (current)
-- V2: connect video generation
-- V3: voice, dialogue and sound design
-- V4: timeline and final movie export
+## Next development milestone: render actual video
+The next milestone is a local generation bridge that connects the storyboard to a ComfyUI workflow / compatible local video model, then returns generated clips for assembly. Online providers can be added through a server-side proxy; never put secret API keys in public frontend code. Free model availability, VRAM requirements, queue limits and usage rights vary.
+
+## Privacy
+The storyboard save uses this browser's local storage. Export JSON for backup. Do not enter confidential material into a public or shared computer.
