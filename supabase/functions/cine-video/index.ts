@@ -35,9 +35,19 @@ Deno.serve(async (req) => {
   try { body = await req.json(); } catch { return json({ error: "Invalid JSON request." }, 400); }
   const action = body.action;
 
-  if (action === "test") return json({ ok: true, provider: "Magic Hour", mode: "free-tier-only", model: "ltx-2.5" });
+  const accountResponse = await fetch("https://api.magichour.ai/v1/account", {
+    headers: { "Authorization": "Bearer " + apiKey, "Accept": "application/json" },
+  });
+  const account = await accountResponse.json().catch(() => ({}));
+  if (!accountResponse.ok) return json({ error: "Could not verify the Magic Hour account or API key." }, 502);
+  if (account.tier !== "free" || account.subscription) {
+    return json({ error: "CINE AI is locked to a free Magic Hour account. Cancel/avoid paid plans and reconnect a free-tier API key." }, 403);
+  }
+
+  if (action === "test") return json({ ok: true, provider: "Magic Hour", mode: "free-tier-only", model: "ltx-2.5", credits_available: account.credits });
 
   if (action === "create") {
+    if (!Number.isFinite(account.credits) || account.credits <= 0) return json({ error: "No free credits remain. Generation stopped; CINE AI will not switch to paid usage." }, 402);
     const prompt = typeof body.prompt === "string" ? body.prompt.trim() : "";
     if (prompt.length < 8 || prompt.length > 3500) return json({ error: "Prompt must be between 8 and 3500 characters." }, 400);
     // Hard-coded free-tier model and low-cost settings. No client can override model or resolution.
