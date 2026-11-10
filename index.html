@@ -59,25 +59,34 @@ function fallbackPlan(idea,duration,style,ratio,language){
 async function ollamaPlan(idea,duration,style,ratio,language){const base=$('ollamaUrl').value.trim().replace(/\/$/,'');const model=$('model').value.trim()||'llama3.2';const prompt='You are a professional short-film screenwriter and animation director. Create a COMPLETE production package for a '+duration+' second animated short film. Visual style: '+style+'. Aspect ratio: '+ratio+'. Dialogue/narration language: '+language+'. User brief: '+idea+'. Return ONLY valid JSON (no markdown) with keys: title, logline, screenplay, continuity, characters, scenes. screenplay must be a complete film script with scene headings, action, spoken dialogue and narration, a clear beginning/conflict/climax/resolution, and an emotionally satisfying ending. characters must be an array of objects with name, role, appearance_prompt, voice_description. scenes must be 5 to 12 objects with title, duration_seconds, action, visual_prompt, camera, audio, transition, shots. Each shots array must contain 2 to 4 objects with shot_title, shot_duration_seconds, shot_action, video_prompt, camera. Video prompts must repeat the relevant character appearance details and explicitly preserve faces, costumes, props and locations between shots. Make historically respectful and avoid presenting invented dialogue as a documented quotation. Allocate scene durations so they approximately total '+duration+' seconds. Do not leave screenplay or dialogue empty.';const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),90000);try{const r=await fetch(base+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model,messages:[{role:'user',content:prompt}],stream:false,format:'json',options:{temperature:.7}}),signal:controller.signal});if(!r.ok)throw new Error('Ollama returned HTTP '+r.status);const data=await r.json();let raw=data.message?.content||'';raw=raw.replace(/^\s*```json/i,'').replace(/```\s*$/,'').trim();const parsed=JSON.parse(raw);if(!Array.isArray(parsed.scenes)||!parsed.scenes.length)throw new Error('The local model returned no scenes');return {...parsed,style,duration_seconds:duration,aspect_ratio:ratio,language}}finally{clearTimeout(timer)}}
 
 // Local ComfyUI connection check. This does not submit a generation job.
-(function restoreComfyUrl(){const saved=localStorage.getItem('cineComfyUrl');if(saved)$('comfyUrl').value=saved})();
-$('testComfyUI').onclick=async()=>{
- const base=$('comfyUrl').value.trim().replace(/\\/$/,'');
+(function restoreComfyUrl(){
+ const saved=localStorage.getItem('cineComfyUrl');
+ if(saved && $('comfyUrl')) $('comfyUrl').value=saved;
+})();
+$('testComfyUI').addEventListener('click',async()=>{
+ let base=$('comfyUrl').value.trim();
  const status=$('comfyConnection');
- if(!/^https?:\\/\\//i.test(base)){status.textContent='Enter a valid local server URL.';status.classList.add('warn');return}
- status.textContent='Checking local ComfyUI server…';status.classList.add('warn');
+ while(base.endsWith('/')) base=base.slice(0,-1);
+ if(!(base.startsWith('http://')||base.startsWith('https://'))){
+  status.textContent='Enter a valid server URL, such as http://127.0.0.1:8188';
+  status.classList.add('warn');
+  return;
+ }
+ status.textContent='Checking local ComfyUI server…';
+ status.classList.add('warn');
  try{
   const response=await fetch(base+'/system_stats',{method:'GET',cache:'no-store'});
-  if(!response.ok)throw new Error('ComfyUI returned HTTP '+response.status);
+  if(!response.ok) throw new Error('ComfyUI returned HTTP '+response.status);
   const data=await response.json();
   const devices=(data.devices||[]).map(d=>d.name||d.type||'GPU').join(', ');
   localStorage.setItem('cineComfyUrl',base);
   status.textContent='Connected to ComfyUI ✓'+(devices?' · Device: '+devices:' · Server responded successfully')+'. Workflow/model setup is the next step.';
   status.classList.remove('warn');
  }catch(error){
-  status.textContent='Connection failed: '+error.message+'. Keep ComfyUI running and allow this website origin in its CORS settings.';
+  status.textContent='Connection failed: '+error.message+'. Check that ComfyUI is running and CORS allows this website origin.';
   status.classList.add('warn');
  }
-};
+});
 $('testOllama').onclick=async()=>{const base=$('ollamaUrl').value.trim().replace(/\/$/,'');$('connection').textContent='Checking local model…';$('connection').classList.add('warn');try{const r=await fetch(base+'/api/tags');if(!r.ok)throw new Error('HTTP '+r.status);const d=await r.json();const names=(d.models||[]).map(m=>m.name);$('connection').textContent=names.length?'Connected · Models: '+names.join(', '):'Connected, but no models found';$('connection').classList.toggle('warn',!names.length)}catch(e){$('connection').textContent='Cannot connect: '+e.message+'. Check Ollama is running and CORS allows this site.'}};
 $('generate').onclick=async()=>{const idea=$('idea').value.trim();if(!idea){alert('Write one movie prompt first.');return}const duration=Number($('duration').value),style=selectedStyle(),ratio=$('ratio').value,language=$('language').value;const btn=$('generate');btn.disabled=true;$('progress').classList.remove('hide');$('bar').style.width='25%';setStatus('Planning your movie…');try{storyboard=await ollamaPlan(idea,duration,style,ratio,language);setStatus('Storyboard created with your local AI model.')}catch(err){storyboard=fallbackPlan(idea,duration,style,ratio,language);setStatus('Local AI unavailable ('+err.message+'). Created a built-in storyboard instead.',true)}$('bar').style.width='100%';render();btn.disabled=false;setTimeout(()=>$('progress').classList.add('hide'),700);$('results').scrollIntoView({behavior:'smooth',block:'start'})};
 function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
