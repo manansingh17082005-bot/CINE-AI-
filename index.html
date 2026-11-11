@@ -12,7 +12,7 @@
 <button class="primary" id="generate" style="width:100%;padding:14px;font-size:16px">✦ Create complete short-film package</button><div id="progress" class="hide"><div id="bar"></div></div><div id="status" class="small" style="margin-top:9px">Ready. Write your idea to begin.</div>
 </section>
 <aside class="card"><h3>03 / AI engine</h3><p class="small">CINE AI can use a local Ollama model to expand your prompt without a paid API. If it is unavailable, the built-in scene planner still works.</p><div class="field"><label>LOCAL MODEL SERVER</label><input id="ollamaUrl" value="http://localhost:11434"></div><div class="field"><label>MODEL NAME</label><input id="model" value="llama3.2"></div><button id="testOllama">Test local AI connection</button><div id="connection" class="status warn">Not tested · Local AI is optional</div>
-<div class="notice"><b>LOCAL BLENDER ENGINE · SHORT CLIPS</b><br>Generate a short animated clip for any storyboard scene with the CINE AI server running on this computer.</div>
+<div class="notice"><b>LOCAL BLENDER V3 ENGINE · SHORT CLIPS</b><br>Generate a short animated clip for any storyboard scene with the CINE AI server running on this computer. This uses your existing V3 renderer; the separate V5 workspace is not connected yet.</div>
 <div class="field"><label>LOCAL CINE AI SERVER</label><input id="blenderUrl" value="http://127.0.0.1:8001"></div>
 <div class="field"><label>SERVER ACCESS TOKEN · PRIVATE, NOT SAVED</label><input id="blenderToken" type="password" autocomplete="off" placeholder="Paste the token printed by server.py"></div>
 <div class="row"><button id="testBlender">Test local Blender server</button></div>
