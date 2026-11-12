@@ -11,7 +11,7 @@
 <div class="row" style="margin-top:14px"><div class="field"><label>VIDEO FRAME</label><select id="ratio"><option value="16:9">16:9 — YouTube / Film</option><option value="9:16" selected>9:16 — Reels / Shorts</option><option value="1:1">1:1 — Square</option></select></div><div class="field"><label>LANGUAGE</label><select id="language"><option>English</option><option>Hindi</option><option>English + Hindi</option></select></div></div>
 <button class="primary" id="generate" style="width:100%;padding:14px;font-size:16px">✦ Build my scenes</button><div id="progress" class="hide"><div id="bar"></div></div><div id="status" class="small" style="margin-top:9px">Ready. Write your idea to begin.</div>
 <div class="notice" style="margin-top:14px"><b>FREE FLAT-VECTOR VIDEO</b><br>Your prompt and scene directions shape a simple, animated vector story with moving characters, backgrounds, scene titles, and captions. Rendering happens in this browser. No paid service or AI footage is used.</div>
-<section class="card" style="margin:14px 0;background:#10141d"><h3>Computer voice narration · optional</h3><p class="small">Choose a voice installed on your computer and preview it. The story generator fills an editable narration draft. When rendering, choose <b>This tab</b> and enable <b>Share tab audio</b>; the video records the animation canvas and voice audio, not your shared screen image.</p><div class="field"><label>NARRATION SCRIPT</label><textarea id="narrationScript" style="min-height:110px" placeholder="Your story prompt will be added here as an editable narration draft. Review or replace it before rendering."></textarea></div><div class="row"><div class="field"><label>INSTALLED VOICE</label><select id="narrationVoice"></select></div><button id="previewNarration">Preview voice</button><button id="stopNarrationVoice">Stop voice</button></div><div id="narrationStatus" class="small" style="margin-top:8px">Loading voices available on this computer…</div></section>
+<section class="card" style="margin:14px 0;background:#10141d"><h3>Computer voice narration · optional</h3><p class="small">Choose a voice installed on your computer and preview it. The story generator fills an editable narration draft. When rendering, choose <b>This tab</b> and turn on <b>Share tab audio</b>. The browser records its audio while your animation canvas supplies the video. Play the finished video once to confirm the voice is audible before downloading.</p><div class="field"><label>NARRATION SCRIPT</label><textarea id="narrationScript" style="min-height:110px" placeholder="Your story prompt will be added here as an editable narration draft. Review or replace it before rendering."></textarea></div><div class="row"><div class="field"><label>INSTALLED VOICE</label><select id="narrationVoice"></select></div><button id="previewNarration">Preview voice</button><button id="stopNarrationVoice">Stop voice</button></div><div id="narrationStatus" class="small" style="margin-top:8px">Loading voices available on this computer…</div></section>
 <button class="primary" id="renderFilm" style="width:100%;padding:13px" disabled>Render my animated video</button>
 <div class="row" style="margin-top:8px"><button id="cancelFilm" disabled>Stop rendering</button><span id="renderStatus" class="small">Create a storyboard first. Rendering takes about as long as the video's duration.</span></div>
 <div id="filmProgress" style="height:5px;background:#262c38;border-radius:9px;overflow:hidden;margin-top:8px"><div id="filmProgressBar" style="height:100%;width:0;background:var(--green);transition:width .2s"></div></div>
@@ -290,7 +290,9 @@ function animationPalette(text,index=0){
  if(/underwater|ocean floor|coral|समुद्र के नीचे/.test(t))p={a:'#073957',b:'#26a7aa',ground:'#0b5366',accent:'#8ff0db',sun:'#b2fff1',kind:'underwater'};
  else if(/lake|pond|riverbank|water surface|rising from the water|झील|तालाब|नदी|पानी से बाहर/.test(t))p={a:'#24154b',b:'#704582',ground:'#28234f',accent:'#b6b5ec',sun:'#f5d9ad',kind:'lake'};
  else if(/ocean|sea|beach|ship|सागर|समुद्र|नाव/.test(t))p={a:'#254b82',b:'#a36ca0',ground:'#1b476e',accent:'#ffe19a',sun:'#fff0b8',kind:'ocean'};
- else if(/heaven|divine|celestial|temple|myth|god|goddess|देव|स्वर्ग|मंदिर|दिव्य/.test(t))p={a:'#28144c',b:'#824b9d',ground:'#5b406e',accent:'#ffd773',sun:'#ffe9a7',kind:'heaven'};
+ else if(/temple|mandir|shrine|sanctuary|देवालय|मंदिर/.test(t)&&/fort|fortress|citadel|rampart|castle|palace|किला|दुर्ग|गढ़|महल/.test(t))p={a:'#b97862',b:'#efd09a',ground:'#8d674d',accent:'#f3cf72',sun:'#fff0b2',kind:'fortTemple'};
+ else if(/temple|mandir|shrine|sanctuary|देवालय|मंदिर/.test(t))p={a:'#c17b69',b:'#f2d2a1',ground:'#9b704f',accent:'#f3cf72',sun:'#fff0b2',kind:'temple'};
+ else if(/heaven|divine|celestial|myth|god|goddess|देव|स्वर्ग|दिव्य/.test(t))p={a:'#28144c',b:'#824b9d',ground:'#5b406e',accent:'#ffd773',sun:'#ffe9a7',kind:'heaven'};
  else if(/space|planet|galaxy|astronaut|अंतरिक्ष|ग्रह/.test(t))p={a:'#101334',b:'#39245d',ground:'#171a35',accent:'#b5a0ff',sun:'#e8ccff',kind:'space'};
  else if(/map|map of|territory|kingdom map|नक्शा|मानचित्र/.test(t))p={a:'#8eb5bf',b:'#f1dfb4',ground:'#ddc896',accent:'#a86d46',sun:'#f7e5ba',kind:'map'};
  else if(/haldighati|mountain pass|pass of|दर्रा|घाटी/.test(t))p={a:'#d98b69',b:'#f2c58d',ground:'#ad744d',accent:'#f2cf72',sun:'#fff0b2',kind:'pass'};
@@ -298,10 +300,10 @@ function animationPalette(text,index=0){
  else if(/forest|jungle|woods|tree|जंगल|वन/.test(t))p={a:'#4e8290',b:'#c3d6ae',ground:'#285c42',accent:'#a4d96c',sun:'#ffe4a1',kind:'forest'};
  else if(/desert|dune|cactus|रेगिस्तान|मरुस्थल/.test(t))p={a:'#ec9a68',b:'#ffd796',ground:'#bd7545',accent:'#f2c65f',sun:'#fff0b2',kind:'desert'};
  else if(/snow|winter|ice| हिम|बर्फ/.test(t))p={a:'#6d9ec8',b:'#e0f2f5',ground:'#d6e6eb',accent:'#86cbe0',sun:'#fff7d8',kind:'snow'};
- else if(/castle|fort|palace|court|किला|महल|दरबार/.test(t))p={a:'#bd6b69',b:'#f5c28d',ground:'#9b5a40',accent:'#f3c96b',sun:'#fff1bd',kind:'castle'};
+ else if(/castle|fort|fortress|citadel|rampart|palace|court|किला|दुर्ग|गढ़|महल|दरबार/.test(t))p={a:'#bd6b69',b:'#f5c28d',ground:'#9b5a40',accent:'#f3c96b',sun:'#fff1bd',kind:'fort'};
  else if(/room|bedroom|classroom|library|school|office|interior|inside|study|desk|laptop|notebook|computer|घर|कमरा|विद्यालय|कक्षा|पढ़ाई/.test(t))p={a:'#718db8',b:'#f3c894',ground:'#82624f',accent:'#ffd477',sun:'#fff0b2',kind:'room'};
  else if(/city|street|town|building|robot|शहर|नगर|सड़क/.test(t))p={a:'#555d9a',b:'#efa58c',ground:'#343449',accent:'#ffd477',sun:'#ffcb83',kind:'city'};
- else if(/mountain|hills|valley|aravalli|पहाड़ी|पर्वत/.test(t))p={a:'#b86c73',b:'#f2c99e',ground:'#59634d',accent:'#f1c76b',sun:'#fff0b2',kind:'mountain'};
+ else if(/mountain|hills|valley|aravalli|mewar|rajasthan|पहाड़ी|पर्वत|मेवाड़|अरावली|राजस्थान/.test(t))p={a:'#b86c73',b:'#f2c99e',ground:'#59634d',accent:'#f1c76b',sun:'#fff0b2',kind:'mountain'};
  else p={a:['#34205f','#3b436e','#6c3974','#9d4b70'][index%4],b:['#704d91','#647c96','#a35f8a','#e18a79'][index%4],ground:['#343150','#3d5d62','#514061','#684254'][index%4],accent:'#f8c77a',sun:'#fff0b2',kind:'hills'};
  p.night=night;p.rain=rain;p.snow=snow;
  if(night){p.a='#10172e';p.b='#394666';p.sun='#f3e8bf';p.accent='#bbd1ff'}
@@ -358,6 +360,22 @@ function drawSceneBackdrop(ctx,w,h,p,time,index){
  if(p.kind==='snow'||p.kind==='mountain'||p.kind==='hills'){
   for(let layer=0;layer<3;layer++){const base=h*(.57+layer*.085),amp=24+layer*10,shift=layer*2;ctx.beginPath();ctx.moveTo(0,h);for(let x=0;x<=w+12;x+=12){const y=base+Math.sin(x*.009+time*.22+shift+index*.4)*amp+Math.sin(x*.021-time*.13)*9;ctx.lineTo(x,y)}ctx.lineTo(w,h);ctx.closePath();ctx.fillStyle=layer===2?p.ground:p.kind==='snow'?['#a9d4e3','#c9e7ec'][layer%2]:['rgba(27,48,83,.3)','rgba(34,77,91,.33)'][layer];ctx.fill()}
   if(p.kind==='snow'){ctx.fillStyle='rgba(255,255,255,.9)';for(let i=0;i<20;i++){ctx.beginPath();ctx.arc((i*67+index*19)%w,h*(.56+(i%4)*.035),4,0,Math.PI*2);ctx.fill()}}return
+ }
+ if(p.kind==='fort'||p.kind==='fortTemple'){
+  for(let layer=0;layer<3;layer++){ctx.beginPath();ctx.moveTo(0,h*.62);ctx.lineTo(w*(.12+layer*.05),h*(.48-layer*.025));ctx.lineTo(w*.3,h*(.6-layer*.025));ctx.lineTo(w*.48,h*(.45-layer*.02));ctx.lineTo(w*.72,h*(.6-layer*.02));ctx.lineTo(w*.9,h*(.47-layer*.02));ctx.lineTo(w,h*.58);ctx.lineTo(w,h);ctx.lineTo(0,h);ctx.closePath();ctx.fillStyle=layer===2?p.ground:['rgba(68,74,77,.35)','rgba(89,91,79,.5)'][layer];ctx.fill()}
+  const wallY=h*.48;ctx.fillStyle='#9d674c';ctx.fillRect(w*.15,wallY,w*.7,h*.25);ctx.fillRect(w*.12,wallY-h*.07,w*.76,h*.09);
+  for(const x of [w*.2,w*.38,w*.62,w*.8]){ctx.fillStyle='#a86f50';ctx.fillRect(x-w*.035,h*.3,w*.07,h*.29);ctx.fillRect(x-w*.05,h*.28,w*.1,h*.035);for(let k=-1;k<=1;k++)ctx.fillRect(x+k*w*.027,h*.26,w*.018,h*.04)}
+  ctx.fillStyle='#68443b';ctx.beginPath();ctx.moveTo(w*.43,h*.73);ctx.lineTo(w*.43,h*.6);ctx.quadraticCurveTo(w*.5,h*.49,w*.57,h*.6);ctx.lineTo(w*.57,h*.73);ctx.fill();
+  ctx.strokeStyle='#dfb95f';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(w*.5,h*.28);ctx.lineTo(w*.5,h*.13);ctx.stroke();ctx.fillStyle='#eabf58';ctx.beginPath();ctx.moveTo(w*.5,h*.13);ctx.lineTo(w*.57,h*.16);ctx.lineTo(w*.5,h*.19);ctx.fill();
+  if(p.kind==='fortTemple'){ctx.fillStyle='#d4a36b';ctx.fillRect(w*.67,h*.39,w*.09,h*.16);ctx.beginPath();ctx.moveTo(w*.66,h*.39);ctx.lineTo(w*.715,h*.28);ctx.lineTo(w*.77,h*.39);ctx.fill();ctx.fillRect(w*.704,h*.23,w*.022,h*.06)}return
+ }
+ if(p.kind==='temple'){
+  for(let layer=0;layer<2;layer++){ctx.beginPath();ctx.moveTo(0,h*.62+layer*12);ctx.lineTo(w*.18,h*.52+layer*8);ctx.lineTo(w*.38,h*.61+layer*8);ctx.lineTo(w*.62,h*.5+layer*8);ctx.lineTo(w*.82,h*.6+layer*8);ctx.lineTo(w,h*.52+layer*8);ctx.lineTo(w,h);ctx.lineTo(0,h);ctx.closePath();ctx.fillStyle=layer?'#8a654d':'rgba(64,83,74,.38)';ctx.fill()}
+  ctx.fillStyle='#c69262';ctx.fillRect(w*.31,h*.51,w*.38,h*.22);ctx.fillRect(w*.27,h*.48,w*.46,h*.05);
+  ctx.beginPath();ctx.moveTo(w*.35,h*.49);ctx.quadraticCurveTo(w*.5,h*.12,w*.65,h*.49);ctx.closePath();ctx.fillStyle='#d8a76d';ctx.fill();
+  for(let tier=0;tier<4;tier++){ctx.beginPath();const y=h*(.45-tier*.075),half=w*(.16-tier*.032);ctx.moveTo(w*.5-half,y);ctx.quadraticCurveTo(w*.5,y-h*.12,w*.5,y-h*.19);ctx.quadraticCurveTo(w*.5,y-h*.12,w*.5+half,y);ctx.fillStyle=tier%2?'#bd8157':'#dfb578';ctx.fill()}
+  ctx.strokeStyle='#f0ce78';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(w*.5,h*.13);ctx.lineTo(w*.5,h*.05);ctx.stroke();ctx.fillStyle='#e8c36d';ctx.beginPath();ctx.arc(w*.5,h*.05,4,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#69463c';ctx.beginPath();ctx.moveTo(w*.46,h*.73);ctx.lineTo(w*.46,h*.64);ctx.quadraticCurveTo(w*.5,h*.56,w*.54,h*.64);ctx.lineTo(w*.54,h*.73);ctx.fill();return
  }
  if(p.kind==='city'||p.kind==='castle'){
   ctx.fillStyle=p.ground;ctx.fillRect(0,h*.64,w,h*.36);
@@ -489,7 +507,7 @@ function drawLakeForeground(ctx,w,h,time,centerX,active,vertical){
  }
 }
 function drawAnimatedFrame(ctx,canvas,scene,index,count,localTime,sceneDuration){
- const w=canvas.width,h=canvas.height,castText=(storyboard?.characters||[]).map(character=>[character.name,character.role,character.appearance_prompt].join(' ')).join(' '),text=[scene.title,scene.action,scene.narration,scene.visual_prompt,castText].join(' '),p=animationPalette(text,index),motion=sceneMotion(scene,localTime,sceneDuration,w,h,index);
+ const w=canvas.width,h=canvas.height,sceneText=[scene.title,scene.action,scene.visual_prompt].join(' '),text=[sceneText,scene.narration].join(' '),p=animationPalette(sceneText,index),motion=sceneMotion(scene,localTime,sceneDuration,w,h,index);
  drawSceneBackdrop(ctx,w,h,p,localTime,index);
  if(p.rain){ctx.strokeStyle='rgba(224,244,255,.62)';ctx.lineWidth=2;for(let i=0;i<65;i++){const x=(i*137+localTime*85)%w,y=(i*71+localTime*240)%(h*.76);ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-8,y+16);ctx.stroke()}}
  else if(p.snow||/petal|blossom|falling leaves|cherry blossom|पंखुड़ी|बर्फ/.test(text)){for(let i=0;i<38;i++){const x=(i*127+Math.sin(localTime+i)*18+index*19)%w,y=(i*67+localTime*(p.snow?20:31))%(h*.74);ctx.globalAlpha=.45+.5*Math.abs(Math.sin(localTime+i));ctx.fillStyle=p.snow?'#fff':'#ffc8d1';ctx.beginPath();ctx.arc(x,y,p.snow?3:4,0,Math.PI*2);ctx.fill()}ctx.globalAlpha=1}
@@ -552,13 +570,14 @@ async function renderAnimatedFilm(){
  const types=['video/mp4;codecs=avc1.42E01E','video/mp4','video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'],mime=types.find(type=>MediaRecorder.isTypeSupported(type));
  if(!mime){$('renderStatus').textContent='This browser cannot record a supported video format.';return}
  if(filmOutputUrl){URL.revokeObjectURL(filmOutputUrl);filmOutputUrl=null}
- let displayStream=null,canvasStream=null,recordingStream=null,recorder;
+ let displayStream=null,canvasStream=null,recordingStream=null,recorder,audioContext=null,audioAnalyser=null,audioSamples=null,audioDetected=false;
  if(script){
   if(!navigator.mediaDevices?.getDisplayMedia){$('renderStatus').textContent='This browser cannot include computer speech in the download. Try current Chrome or Edge.';return}
   $('renderStatus').textContent='Choose This tab in the share window and turn on Share tab audio to add the computer voice.';
   try{displayStream=await navigator.mediaDevices.getDisplayMedia({video:{displaySurface:'browser'},audio:true,preferCurrentTab:true,selfBrowserSurface:'include',systemAudio:'exclude'})}
   catch(e){$('renderStatus').textContent='Audio sharing was cancelled or unavailable. Choose This tab and enable Share tab audio, then try again.';return}
   if(!displayStream.getAudioTracks().length){displayStream.getTracks().forEach(t=>t.stop());$('renderStatus').textContent='No tab audio was shared. Choose This tab and enable Share tab audio, then try again.';return}
+  try{audioContext=new AudioContext();await audioContext.resume();audioAnalyser=audioContext.createAnalyser();audioAnalyser.fftSize=2048;audioSamples=new Uint8Array(audioAnalyser.fftSize);audioContext.createMediaStreamSource(new MediaStream(displayStream.getAudioTracks())).connect(audioAnalyser)}catch(e){audioContext?.close();audioContext=null;audioAnalyser=null;audioSamples=null}
  }
  const scenes=storyboard.scenes,durations=scenes.map(s=>Math.max(2,Number(s.duration_seconds)||8)),total=durations.reduce((a,b)=>a+b,0),chunks=[];
  try{
@@ -569,10 +588,11 @@ async function renderAnimatedFilm(){
  $('renderStatus').textContent='Rendering '+Math.round(total)+' seconds'+(script?' with the computer voice · keep this tab open.':' · keep this tab open.');
  $('filmProgressBar').style.width='0';activeFilm={cancelled:false};let speechEnded=!script,speechError='';
  recorder.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
- recorder.onerror=()=>{if(activeSpeech)speechSynthesis.cancel();[canvasStream,displayStream,recordingStream].filter(Boolean).forEach(st=>st.getTracks().forEach(t=>t.stop()));$('renderStatus').textContent='Video recording failed. Try a shorter film or another browser.';activeFilm=null;$('renderFilm').disabled=false;$('cancelFilm').disabled=true};
+ recorder.onerror=()=>{if(activeSpeech)speechSynthesis.cancel();if(audioContext)audioContext.close();[canvasStream,displayStream,recordingStream].filter(Boolean).forEach(st=>st.getTracks().forEach(t=>t.stop()));$('renderStatus').textContent='Video recording failed. Try a shorter film or another browser.';activeFilm=null;$('renderFilm').disabled=false;$('cancelFilm').disabled=true};
  recorder.onstop=()=>{
   const wasCancelled=activeFilm?.cancelled,blob=new Blob(chunks,{type:recorder.mimeType||mime});
   if(activeSpeech)speechSynthesis.cancel();activeSpeech=null;
+  if(audioContext)audioContext.close();
   [canvasStream,displayStream,recordingStream].filter(Boolean).forEach(st=>st.getTracks().forEach(t=>t.stop()));
   canvas.style.display='none';$('renderFilm').disabled=false;$('cancelFilm').disabled=true;
   if(!blob.size){$('renderStatus').textContent='No video data was recorded. Try again in Chrome or Edge.';activeFilm=null;return}
@@ -580,8 +600,8 @@ async function renderAnimatedFilm(){
   const ext=(recorder.mimeType||mime).includes('mp4')?'mp4':'webm',safe=(storyboard.title||'cine-ai-animation').replace(/[^a-z0-9_-]+/gi,'-').replace(/^-+|-+$/g,'').slice(0,48)||'cine-ai-animation',video=document.createElement('video');
   video.controls=true;video.playsInline=true;video.src=filmOutputUrl;video.style.cssText='width:100%;max-height:440px;border-radius:10px;margin-top:10px';
   const link=document.createElement('a');link.href=filmOutputUrl;link.download=safe+'.'+ext;link.textContent='Download '+ext.toUpperCase()+' video';link.className='primary';link.style.cssText='display:inline-block;text-decoration:none;margin-top:10px';
-  const wrap=document.createElement('div');wrap.className='status';wrap.append('Your animated video is ready. '+(script&&!speechError?'Computer narration included. ':script?'Narration may be incomplete. ':'No voice script was added. ')+ext.toUpperCase()+' was exported in this browser. ',video,link);$('filmOutput').replaceChildren(wrap);
-  $('renderStatus').textContent=wasCancelled?'Stopped early · partial video available.':speechError?'Finished with a speech warning: '+speechError:'Finished · '+Math.round(total)+' seconds'+(script?' · computer voice included':' · no voice track');
+  const narrationConfirmed=script&&!speechError&&audioDetected;const wrap=document.createElement('div');wrap.className='status';wrap.append('Your animated video is ready. '+(narrationConfirmed?'Narration audio detected. ':script?'Narration audio was not confirmed; play the preview to check it. ':'No voice script was added. ')+ext.toUpperCase()+' was exported in this browser. ',video,link);$('filmOutput').replaceChildren(wrap);
+  $('renderStatus').textContent=wasCancelled?'Stopped early · partial video available.':speechError?'Finished with a speech warning: '+speechError:'Finished · '+Math.round(total)+' seconds'+(script?(audioDetected?' · narration audio detected':' · narration audio not confirmed'):' · no voice track');
   $('filmProgressBar').style.width=wasCancelled?'0':'100%';activeFilm=null;
  };
  try{recorder.start(1000)}catch(e){[canvasStream,displayStream,recordingStream].filter(Boolean).forEach(st=>st.getTracks().forEach(t=>t.stop()));canvas.style.display='none';$('renderFilm').disabled=false;$('cancelFilm').disabled=true;$('renderStatus').textContent='Could not start video export: '+e.message;activeFilm=null;return}
@@ -595,11 +615,11 @@ async function renderAnimatedFilm(){
  function frame(now){
   if(!activeFilm)return;
   if(activeFilm.cancelled||recorder.state!=='recording'){if(recorder.state==='recording')recorder.stop();return}
-  const elapsed=(now-started)/1000;let remaining=elapsed,index=0;
+  const elapsed=(now-started)/1000;if(audioAnalyser&&script&&!speechEnded){audioAnalyser.getByteTimeDomainData(audioSamples);let energy=0;for(let sample of audioSamples){const centered=(sample-128)/128;energy+=centered*centered}if(Math.sqrt(energy/audioSamples.length)>.012)audioDetected=true}let remaining=elapsed,index=0;
   while(index<durations.length-1&&remaining>=durations[index]){remaining-=durations[index];index++}
   remaining=elapsed>=total?Math.max(0,durations[index]-0.5):Math.min(remaining,durations[index]);drawAnimatedFrame(ctx,canvas,scenes[index],index,scenes.length,remaining,durations[index]);
   if(elapsed>=total&&speechEnded){recorder.stop();return}
-  if(now-lastUi>500){$('filmProgressBar').style.width=Math.min(99,elapsed/total*100)+'%';$('renderStatus').textContent=elapsed>=total&&script&&!speechEnded?'Finishing computer narration…':'Rendering scene '+(index+1)+' of '+scenes.length+' · '+Math.floor(elapsed)+' / '+Math.ceil(total)+' sec';lastUi=now}
+  if(now-lastUi>500){$('filmProgressBar').style.width=Math.min(99,elapsed/total*100)+'%';$('renderStatus').textContent=elapsed>=total&&script&&!speechEnded?'Finishing computer narration…':script&&!audioDetected&&elapsed>2?'Waiting for voice audio from this tab…':'Rendering scene '+(index+1)+' of '+scenes.length+' · '+Math.floor(elapsed)+' / '+Math.ceil(total)+' sec';lastUi=now}
   requestAnimationFrame(frame)
  }
  requestAnimationFrame(frame)
