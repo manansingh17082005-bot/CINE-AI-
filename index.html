@@ -11,7 +11,7 @@
 <div class="row" style="margin-top:14px"><div class="field"><label>VIDEO FRAME</label><select id="ratio"><option value="16:9">16:9 — YouTube / Film</option><option value="9:16" selected>9:16 — Reels / Shorts</option><option value="1:1">1:1 — Square</option></select></div><div class="field"><label>LANGUAGE</label><select id="language"><option>English</option><option>Hindi</option><option>English + Hindi</option></select></div></div>
 <button class="primary" id="generate" style="width:100%;padding:14px;font-size:16px">✦ Build my scenes</button><div id="progress" class="hide"><div id="bar"></div></div><div id="status" class="small" style="margin-top:9px">Ready. Write your idea to begin.</div>
 <div class="notice" style="margin-top:14px"><b>FREE FLAT-VECTOR VIDEO</b><br>Your prompt and scene directions shape a simple, animated vector story with moving characters, backgrounds, scene titles, and captions. Rendering happens in this browser. No paid service or AI footage is used.</div>
-<section class="card" style="margin:14px 0;background:#10141d"><h3>Computer voice narration · optional</h3><p class="small">Choose a voice installed on your computer and preview it. The story generator fills an editable narration draft. When rendering, choose <b>This tab</b> and turn on <b>Share tab audio</b>. The browser records its audio while your animation canvas supplies the video. Play the finished video once to confirm the voice is audible before downloading.</p><div class="field"><label>NARRATION SCRIPT</label><textarea id="narrationScript" style="min-height:110px" placeholder="Your story prompt will be added here as an editable narration draft. Review or replace it before rendering."></textarea></div><div class="row"><div class="field"><label>INSTALLED VOICE</label><select id="narrationVoice"></select></div><button id="previewNarration">Preview voice</button><button id="stopNarrationVoice">Stop voice</button></div><div id="narrationStatus" class="small" style="margin-top:8px">Loading voices available on this computer…</div></section>
+<section class="card" style="margin:14px 0;background:#10141d"><h3>Computer voice narration · optional</h3><p class="small">Choose a voice installed on your computer and preview it. The story generator fills an editable narration draft. During export, select <b>Entire screen</b> and enable <b>Share system audio</b>. CINE AI uses the shared audio for narration and discards the screen image; only the animation is in the video. Play the preview once to confirm the voice before downloading.</p><div class="field"><label>NARRATION SCRIPT</label><textarea id="narrationScript" style="min-height:110px" placeholder="Your story prompt will be added here as an editable narration draft. Review or replace it before rendering."></textarea></div><div class="row"><div class="field"><label>INSTALLED VOICE</label><select id="narrationVoice"></select></div><button id="previewNarration">Preview voice</button><button id="stopNarrationVoice">Stop voice</button></div><div id="narrationStatus" class="small" style="margin-top:8px">Loading voices available on this computer…</div></section>
 <button class="primary" id="renderFilm" style="width:100%;padding:13px" disabled>Render my animated video</button>
 <div class="row" style="margin-top:8px"><button id="cancelFilm" disabled>Stop rendering</button><span id="renderStatus" class="small">Create a storyboard first. Rendering takes about as long as the video's duration.</span></div>
 <div id="filmProgress" style="height:5px;background:#262c38;border-radius:9px;overflow:hidden;margin-top:8px"><div id="filmProgressBar" style="height:100%;width:0;background:var(--green);transition:width .2s"></div></div>
@@ -573,10 +573,10 @@ async function renderAnimatedFilm(){
  let displayStream=null,canvasStream=null,recordingStream=null,recorder,audioContext=null,audioAnalyser=null,audioSamples=null,audioDetected=false;
  if(script){
   if(!navigator.mediaDevices?.getDisplayMedia){$('renderStatus').textContent='This browser cannot include computer speech in the download. Try current Chrome or Edge.';return}
-  $('renderStatus').textContent='Choose This tab in the share window and turn on Share tab audio to add the computer voice.';
-  try{displayStream=await navigator.mediaDevices.getDisplayMedia({video:{displaySurface:'browser'},audio:true,preferCurrentTab:true,selfBrowserSurface:'include',systemAudio:'exclude'})}
-  catch(e){$('renderStatus').textContent='Audio sharing was cancelled or unavailable. Choose This tab and enable Share tab audio, then try again.';return}
-  if(!displayStream.getAudioTracks().length){displayStream.getTracks().forEach(t=>t.stop());$('renderStatus').textContent='No tab audio was shared. Choose This tab and enable Share tab audio, then try again.';return}
+  $('renderStatus').textContent='Select Entire screen and turn on Share system audio. Only audio is used; your screen image is not recorded in the video.';
+  try{displayStream=await navigator.mediaDevices.getDisplayMedia({video:true,audio:true,preferCurrentTab:false,selfBrowserSurface:'exclude',systemAudio:'include'})}
+  catch(e){$('renderStatus').textContent='Screen audio sharing was cancelled or unavailable. Choose Entire screen and enable Share system audio, then try again.';return}
+  if(!displayStream.getAudioTracks().length){displayStream.getTracks().forEach(t=>t.stop());$('renderStatus').textContent='No system audio was shared. Choose Entire screen and enable Share system audio, then try again.';return}
   try{audioContext=new AudioContext();await audioContext.resume();audioAnalyser=audioContext.createAnalyser();audioAnalyser.fftSize=2048;audioSamples=new Uint8Array(audioAnalyser.fftSize);audioContext.createMediaStreamSource(new MediaStream(displayStream.getAudioTracks())).connect(audioAnalyser)}catch(e){audioContext?.close();audioContext=null;audioAnalyser=null;audioSamples=null}
  }
  const scenes=storyboard.scenes,durations=scenes.map(s=>Math.max(2,Number(s.duration_seconds)||8)),total=durations.reduce((a,b)=>a+b,0),chunks=[];
@@ -586,7 +586,7 @@ async function renderAnimatedFilm(){
  }catch(e){[canvasStream,displayStream,recordingStream].filter(Boolean).forEach(st=>st.getTracks().forEach(t=>t.stop()));$('renderStatus').textContent='Could not start video export: '+e.message;return}
  canvas.style.display='block';$('filmOutput').innerHTML='';$('renderFilm').disabled=true;$('cancelFilm').disabled=false;
  $('renderStatus').textContent='Rendering '+Math.round(total)+' seconds'+(script?' with the computer voice · keep this tab open.':' · keep this tab open.');
- $('filmProgressBar').style.width='0';activeFilm={cancelled:false};let speechEnded=!script,speechError='';
+ $('filmProgressBar').style.width='0';activeFilm={cancelled:false};let speechEnded=!script,speechError='',speechEndAt=0;
  recorder.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
  recorder.onerror=()=>{if(activeSpeech)speechSynthesis.cancel();if(audioContext)audioContext.close();[canvasStream,displayStream,recordingStream].filter(Boolean).forEach(st=>st.getTracks().forEach(t=>t.stop()));$('renderStatus').textContent='Video recording failed. Try a shorter film or another browser.';activeFilm=null;$('renderFilm').disabled=false;$('cancelFilm').disabled=true};
  recorder.onstop=()=>{
@@ -607,8 +607,8 @@ async function renderAnimatedFilm(){
  try{recorder.start(1000)}catch(e){[canvasStream,displayStream,recordingStream].filter(Boolean).forEach(st=>st.getTracks().forEach(t=>t.stop()));canvas.style.display='none';$('renderFilm').disabled=false;$('cancelFilm').disabled=true;$('renderStatus').textContent='Could not start video export: '+e.message;activeFilm=null;return}
  if(script){
   speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(script);utterance.voice=voice;utterance.lang=voice.lang;utterance.rate=0.95;activeSpeech=utterance;
-  utterance.onend=()=>{speechEnded=true;activeSpeech=null};
-  utterance.onerror=e=>{speechError=e.error||'The selected voice could not finish speaking.';speechEnded=true;activeSpeech=null};
+  utterance.onend=()=>{speechEnded=true;speechEndAt=performance.now();activeSpeech=null};
+  utterance.onerror=e=>{speechError=e.error||'The selected voice could not finish speaking.';speechEnded=true;speechEndAt=performance.now();activeSpeech=null};
   speechSynthesis.speak(utterance);$('narrationStatus').textContent='Narration is speaking while the video renders.';
  }
  const started=performance.now();let lastUi=0;
@@ -618,7 +618,7 @@ async function renderAnimatedFilm(){
   const elapsed=(now-started)/1000;if(audioAnalyser&&script&&!speechEnded){audioAnalyser.getByteTimeDomainData(audioSamples);let energy=0;for(let sample of audioSamples){const centered=(sample-128)/128;energy+=centered*centered}if(Math.sqrt(energy/audioSamples.length)>.012)audioDetected=true}let remaining=elapsed,index=0;
   while(index<durations.length-1&&remaining>=durations[index]){remaining-=durations[index];index++}
   remaining=elapsed>=total?Math.max(0,durations[index]-0.5):Math.min(remaining,durations[index]);drawAnimatedFrame(ctx,canvas,scenes[index],index,scenes.length,remaining,durations[index]);
-  if(elapsed>=total&&speechEnded){recorder.stop();return}
+  if(elapsed>=total&&speechEnded&&(!script||now-speechEndAt>600)){recorder.stop();return}
   if(now-lastUi>500){$('filmProgressBar').style.width=Math.min(99,elapsed/total*100)+'%';$('renderStatus').textContent=elapsed>=total&&script&&!speechEnded?'Finishing computer narration…':script&&!audioDetected&&elapsed>2?'Waiting for voice audio from this tab…':'Rendering scene '+(index+1)+' of '+scenes.length+' · '+Math.floor(elapsed)+' / '+Math.ceil(total)+' sec';lastUi=now}
   requestAnimationFrame(frame)
  }
