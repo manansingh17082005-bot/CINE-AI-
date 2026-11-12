@@ -11,7 +11,7 @@
 <div class="row" style="margin-top:14px"><div class="field"><label>VIDEO FRAME</label><select id="ratio"><option value="16:9">16:9 — YouTube / Film</option><option value="9:16">9:16 — Reels / Shorts</option><option value="1:1">1:1 — Square</option></select></div><div class="field"><label>LANGUAGE</label><select id="language"><option>English</option><option>Hindi</option><option>English + Hindi</option></select></div></div>
 <button class="primary" id="generate" style="width:100%;padding:14px;font-size:16px">✦ Build my scenes</button><div id="progress" class="hide"><div id="bar"></div></div><div id="status" class="small" style="margin-top:9px">Ready. Write your idea to begin.</div>
 <div class="notice" style="margin-top:14px"><b>FREE FLAT-VECTOR VIDEO</b><br>Your prompt and scene directions shape a simple, animated vector story with moving characters, backgrounds, scene titles, and captions. Rendering happens in this browser. No paid service or AI footage is used.</div>
-<section class="card" style="margin:14px 0;background:#10141d"><h3>Computer voice narration · optional</h3><p class="small">Choose a voice installed on your computer and add your narration script. Preview it here. To include the computer voice, your browser will ask to share a tab temporarily. Choose <b>This tab</b> and enable <b>Share tab audio</b>. Only the voice audio is put in your video; the shared screen image is not recorded.</p><div class="field"><label>NARRATION SCRIPT</label><textarea id="narrationScript" style="min-height:110px" placeholder="Write what you want the computer voice to say. Try the Maharana Pratap example above."></textarea></div><div class="row"><div class="field"><label>INSTALLED VOICE</label><select id="narrationVoice"></select></div><button id="previewNarration">Preview voice</button><button id="stopNarrationVoice">Stop voice</button></div><div id="narrationStatus" class="small" style="margin-top:8px">Loading voices available on this computer…</div></section>
+<section class="card" style="margin:14px 0;background:#10141d"><h3>Computer voice narration · optional</h3><p class="small">Choose a voice installed on your computer and preview it. The story generator fills an editable narration draft. When rendering, choose <b>This tab</b> and enable <b>Share tab audio</b>; the video records the animation canvas and voice audio, not your shared screen image.</p><div class="field"><label>NARRATION SCRIPT</label><textarea id="narrationScript" style="min-height:110px" placeholder="Your story prompt will be added here as an editable narration draft. Review or replace it before rendering."></textarea></div><div class="row"><div class="field"><label>INSTALLED VOICE</label><select id="narrationVoice"></select></div><button id="previewNarration">Preview voice</button><button id="stopNarrationVoice">Stop voice</button></div><div id="narrationStatus" class="small" style="margin-top:8px">Loading voices available on this computer…</div></section>
 <button class="primary" id="renderFilm" style="width:100%;padding:13px" disabled>Render my animated video</button>
 <div class="row" style="margin-top:8px"><button id="cancelFilm" disabled>Stop rendering</button><span id="renderStatus" class="small">Create a storyboard first. Rendering takes about as long as the video's duration.</span></div>
 <div id="filmProgress" style="height:5px;background:#262c38;border-radius:9px;overflow:hidden;margin-top:8px"><div id="filmProgressBar" style="height:100%;width:0;background:var(--green);transition:width .2s"></div></div>
@@ -52,11 +52,11 @@ function fallbackPlan(idea,duration,style,ratio,language){
    {name:'Maharana Pratap',role:'Ruler of Mewar',appearance_prompt:'Consistent flat-vector Rajput leader with saffron turban and simple period-inspired attire; retain the same colors and silhouette in every scene.',voice_description:'Narrated with the selected computer voice.'},
    {name:'Chetak',role:'Pratap’s horse in remembered tradition',appearance_prompt:'Blue-grey horse with a simple consistent flat-vector silhouette; show the rescue story as local tradition.',voice_description:'No dialogue.'}
   ];
-  const scenes=scenesData.map((s,i)=>({title:'Scene '+String(i+1).padStart(2,'0')+' — '+s.title,duration_seconds:per+(i<extra?1:0),action:s.action,visual_prompt:s.prompt+' '+style+', '+ratio+' aspect ratio, clear flat shapes, consistent character colors, no text or watermark.',camera:'Gentle pan or slow push-in; clear readable flat-vector composition.',audio:s.dialogue,transition:i===0?'Fade in':i===scenesData.length-1?'Fade out':'Soft dissolve',shots:[]}));
+  const scenes=scenesData.map((s,i)=>({title:'Scene '+String(i+1).padStart(2,'0')+' — '+s.title,duration_seconds:per+(i<extra?1:0),action:s.action,visual_prompt:s.prompt+' '+style+', '+ratio+' aspect ratio, clear flat shapes, consistent character colors, no text or watermark.',camera:'Gentle pan or slow push-in; clear readable flat-vector composition.',audio:s.dialogue,narration:s.dialogue,transition:i===0?'Fade in':i===scenesData.length-1?'Fade out':'Soft dissolve',shots:[]}));
   const screenplay='मेवाड़ के महाराणा प्रताप ने अपने राज्य के स्वाभिमान और स्वतंत्रता की रक्षा का संकल्प लिया। 1576 में हल्दीघाटी के युद्ध के बाद, मेवाड़ की सेना को पीछे हटना पड़ा; लेकिन संघर्ष नहीं रुका। लोकपरंपरा चेतक की निष्ठा को आज भी याद करती है। प्रताप ने प्रतिरोध जारी रखा और 1579 तक पश्चिमी मेवाड़ के अधिकांश खोए प्रदेश फिर हासिल किए। उनका जीवन साहस, धैर्य और दृढ़ नेतृत्व की प्रेरणा है।';
   return {title:$('title').value.trim()||'Maharana Pratap: A Legacy of Resolve',logline:'A short, respectful account of Maharana Pratap’s leadership, resistance and legacy.',screenplay,characters,style,duration_seconds:duration,aspect_ratio:ratio,language,continuity:'Use a consistent flat-vector Maharana character. Present Haldighati as a battle followed by retreat, not as a Mewar victory. Present Chetak’s rescue as a traditional account.',scenes};
  }
- const sentences=idea.split(/(?<=[.!?।])\s+|\n+/).map(x=>x.trim()).filter(Boolean),count=Math.max(5,Math.min(12,Math.ceil(duration/12))),beats=['Opening image and world introduction','Introduce the main character','The discovery or inciting incident','A problem or challenge appears','The character makes a bold decision','The journey or action escalates','A surprising turning point','The emotional climax','Resolution and final visual'],scenes=[];
+ const sentences=idea.split(/(?<=[.!?।])\s+|\n+/).map(x=>x.trim()).filter(Boolean),count=Math.max(5,Math.min(12,Math.ceil(duration/12))),beats=['Open on the world as the main character moves into the scene','Introduce the main character with a clear gesture','The character discovers an important clue','A challenge interrupts the plan','The character makes a bold move or reaches for help','The journey speeds up through the setting','A sudden turn changes the character’s direction','The character makes a brave final move','Resolve the story with a calm, memorable final pose'],scenes=[];
  for(let i=0;i<count;i++){const beat=beats[i]||'A new cinematic moment',source=sentences.length?sentences[i%sentences.length]:idea,desc=(i===0?'Establish the setting. ':i===count-1?'Deliver a satisfying final image. ':'Advance the story. ')+source+' '+beat+'.';scenes.push({title:'Scene '+String(i+1).padStart(2,'0')+' — '+beat,duration_seconds:Math.round(duration/count),action:desc,visual_prompt:style+' animated film, '+desc+' Strong visual storytelling, consistent character design, expressive movement, cinematic lighting, detailed environment, '+ratio+' aspect ratio. No text or watermark.',camera:'Clear establishing, medium or close-up shot; smooth controlled movement.',audio:'Original ambient sound and score; dialogue in '+language+'.',transition:i===0?'Fade in':i===count-1?'Fade out':'Match cut',shots:[{shot_title:'Establishing shot',shot_duration_seconds:3,shot_action:desc,video_prompt:style+' animation, '+desc+' Cinematic establishing shot, '+ratio+', no text or watermark.',camera:'Slow dolly.'},{shot_title:'Action shot',shot_duration_seconds:2,shot_action:desc,video_prompt:style+' animation, '+desc+' Expressive close-up, '+ratio+', no text or watermark.',camera:'Slow push-in.'}]})}
  return {title:$('title').value.trim()||'Untitled CINE AI Film',logline:idea,screenplay:'SCREENPLAY DRAFT\n\n'+beats.join('\n\n')+'\n\nThis is a basic fallback outline. Connect Ollama for a fully written dialogue screenplay.',characters:[{name:'Main character',role:'Protagonist',appearance_prompt:'Create a distinctive, consistent character design based on the film brief.',voice_description:'Clear expressive voice matching the character.'}],style,duration_seconds:duration,aspect_ratio:ratio,language,continuity:'Keep each character’s face, clothing, proportions, colors and accessories identical in every scene.',scenes}
 }
@@ -92,7 +92,29 @@ $('testComfyUI').addEventListener('click',async()=>{
  }
 });
 $('testOllama').onclick=async()=>{const base=$('ollamaUrl').value.trim().replace(/\/$/,''),status=$('connection'),controller=new AbortController(),timer=setTimeout(()=>controller.abort(),8000);status.textContent='Checking local model…';status.classList.add('warn');try{const r=await fetch(base+'/api/tags',{signal:controller.signal});if(!r.ok)throw new Error('HTTP '+r.status);const d=await r.json();const names=(d.models||[]).map(m=>m.name);status.textContent=names.length?'Connected · Models: '+names.join(', '):'Connected, but no models found';status.classList.toggle('warn',!names.length)}catch(e){status.textContent=e.name==='AbortError'?'Connection timed out. The built-in storyboard still works.':'Cannot connect: '+e.message+'. The built-in storyboard still works.';status.classList.add('warn')}finally{clearTimeout(timer)}};
-$('generate').onclick=async()=>{const baseIdea=$('idea').value.trim();if(!baseIdea){alert('Write a story prompt first.');return}const sceneDetails=$('sceneDetails').value.trim();const idea=sceneDetails?baseIdea+'\n\nFULL SCENE-BY-SCENE DIRECTION:\n'+sceneDetails:baseIdea;const duration=Number($('duration').value),style=selectedStyle(),ratio=$('ratio').value,language=$('language').value;const btn=$('generate');btn.disabled=true;$('progress').classList.remove('hide');$('bar').style.width='35%';setStatus('Building your scenes…');storyboard=fallbackPlan(idea,duration,style,ratio,language);$('bar').style.width='100%';setStatus('Your scenes are ready. Review or edit them, then render your video.');render();btn.disabled=false;setTimeout(()=>$('progress').classList.add('hide'),700);$('results').scrollIntoView({behavior:'smooth',block:'start'})};
+$('generate').onclick=async()=>{
+ const baseIdea=$('idea').value.trim();
+ if(!baseIdea){alert('Write a story prompt first.');return}
+ const sceneDetails=$('sceneDetails').value.trim(),idea=sceneDetails?baseIdea+'\n\nFULL SCENE-BY-SCENE DIRECTION:\n'+sceneDetails:baseIdea;
+ const duration=Number($('duration').value),style=selectedStyle(),ratio=$('ratio').value,language=$('language').value,btn=$('generate');
+ btn.disabled=true;$('progress').classList.remove('hide');$('bar').style.width='35%';setStatus('Building your scenes…');
+ try{
+  storyboard=fallbackPlan(idea,duration,style,ratio,language);
+  const narration=$('narrationScript').value.trim(),scriptEdited=$('narrationScript').dataset.userEdited==='true';
+  if(!scriptEdited||!narration){
+   const sceneLines=(storyboard.scenes||[]).map(scene=>String(scene.narration||scene.dialogue||'').trim()).filter(Boolean);
+   const screenplay=String(storyboard.screenplay||'').trim();
+   const suggested=sceneLines.join(' ')||(screenplay&&!/^SCREENPLAY DRAFT/i.test(screenplay)?screenplay:baseIdea);
+   $('narrationScript').value=suggested;
+   $('narrationScript').dataset.userEdited='false';
+   $('narrationStatus').textContent='Narration draft added from your story. Review or edit it, then choose an installed voice.';
+  }
+  refreshNarrationVoices();
+  $('bar').style.width='100%';setStatus('Your scenes and narration draft are ready. Review or edit them, then render your video.');
+  render();setTimeout(()=>$('progress').classList.add('hide'),700);$('results').scrollIntoView({behavior:'smooth',block:'start'});
+ }catch(error){setStatus('Could not build the scenes: '+error.message,true)}
+ finally{btn.disabled=false}
+};
 function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function render(){
  if(!storyboard)return;
@@ -151,25 +173,49 @@ async function generateSceneVideo(index,button){
   throw new Error('Timed out waiting for a saved video. Check the ComfyUI terminal and confirm the workflow has a video output/save node.');
  }catch(e){slot.innerHTML='<div class="status warn">'+esc(e.message)+'</div>';button.textContent='Retry local clip'}finally{button.disabled=false}
 }
+const NARRATION_VOICE_KEY='cineNarrationVoice';
 function refreshNarrationVoices(){
- const select=$('narrationVoice');if(!select)return;const previous=select.value,voices=speechSynthesis.getVoices();
+ const select=$('narrationVoice'),status=$('narrationStatus');
+ if(!select||!status)return;
+ if(!('speechSynthesis' in window)||!('SpeechSynthesisUtterance' in window)){
+  status.textContent='Computer narration is not supported by this browser. Try current Chrome or Edge.';
+  select.replaceChildren();return
+ }
+ const previous=select.value||localStorage.getItem(NARRATION_VOICE_KEY)||'',voices=speechSynthesis.getVoices();
  select.replaceChildren();
- voices.forEach((voice,index)=>{const option=document.createElement('option');option.value=voice.voiceURI;option.textContent=voice.name+' · '+voice.lang;select.appendChild(option)});
- if(previous&&voices.some(v=>v.voiceURI===previous))select.value=previous;
- if(!voices.length)$('narrationStatus').textContent='No system voices found yet. Check that a voice is installed and enabled, then reload this page.';
- else if(!$('narrationStatus').textContent.startsWith('Narration is speaking'))$('narrationStatus').textContent=voices.length+' voice(s) found on this computer. Choose one and preview it.';
+ voices.forEach(voice=>{const option=document.createElement('option');option.value=voice.voiceURI;option.textContent=voice.name+' · '+voice.lang;select.appendChild(option)});
+ let chosen=voices.find(voice=>voice.voiceURI===previous);
+ if(!chosen&&voices.length){
+  const language=$('language')?.value||'English';
+  const languagePrefix=language==='Hindi'?'hi':'en';
+  chosen=voices.find(voice=>voice.lang.toLowerCase().startsWith(languagePrefix+'-in'))||voices.find(voice=>voice.lang.toLowerCase().startsWith(languagePrefix))||voices[0];
+ }
+ if(chosen)select.value=chosen.voiceURI;
+ if(!voices.length)status.textContent='No system voices found yet. Install or enable a voice in your computer settings, then reload this page.';
+ else if(!status.textContent.startsWith('Narration is speaking'))status.textContent=voices.length+' installed voice(s) available. Preview the selected voice before rendering.';
 }
 function previewNarration(){
+ if(!('speechSynthesis' in window)||!('SpeechSynthesisUtterance' in window)){$('narrationStatus').textContent='This browser does not support computer narration.';return}
  const script=$('narrationScript').value.trim(),voice=speechSynthesis.getVoices().find(v=>v.voiceURI===$('narrationVoice').value);
- if(!script){$('narrationStatus').textContent='Write or load a narration script first.';return}
+ if(!script){$('narrationStatus').textContent='Build a story or write a narration script first.';return}
  if(!voice){$('narrationStatus').textContent='No installed voice is available. Add a voice in your computer settings, then reload this page.';return}
- speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(script);utterance.voice=voice;utterance.lang=voice.lang;utterance.rate=0.95;activeSpeech=utterance;
- utterance.onend=()=>{activeSpeech=null;$('narrationStatus').textContent='Voice preview finished. The same voice can be included when you render.'};
- utterance.onerror=e=>{activeSpeech=null;$('narrationStatus').textContent='Voice preview failed: '+(e.error||'speech error')};
+ speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(script);utterance.voice=voice;utterance.lang=voice.lang;utterance.rate=.95;activeSpeech=utterance;
+ utterance.onend=()=>{activeSpeech=null;$('narrationStatus').textContent='Voice preview finished. This voice will be used in the rendered video.'};
+ utterance.onerror=event=>{activeSpeech=null;$('narrationStatus').textContent='Voice preview failed: '+(event.error||'speech error')};
  $('narrationStatus').textContent='Playing a preview with '+voice.name+'.';speechSynthesis.speak(utterance);
 }
-function stopNarrationVoice(){speechSynthesis.cancel();activeSpeech=null;$('narrationStatus').textContent='Voice stopped.'}
-speechSynthesis.onvoiceschanged=refreshNarrationVoices;refreshNarrationVoices();$('previewNarration').onclick=previewNarration;$('stopNarrationVoice').onclick=stopNarrationVoice;
+function stopNarrationVoice(){
+ if('speechSynthesis' in window)speechSynthesis.cancel();
+ activeSpeech=null;$('narrationStatus').textContent='Voice stopped.';
+}
+if('speechSynthesis' in window){
+ speechSynthesis.onvoiceschanged=refreshNarrationVoices;
+ refreshNarrationVoices();
+ $('narrationVoice').addEventListener('change',()=>{try{localStorage.setItem(NARRATION_VOICE_KEY,$('narrationVoice').value)}catch(_){}});
+ $('language').addEventListener('change',()=>{if(!localStorage.getItem(NARRATION_VOICE_KEY))refreshNarrationVoices()});
+}
+$('narrationScript').addEventListener('input',()=>{$('narrationScript').dataset.userEdited='true'});
+$('previewNarration').onclick=previewNarration;$('stopNarrationVoice').onclick=stopNarrationVoice;
 $('renderFilm').onclick=renderAnimatedFilm;
 $('cancelFilm').onclick=()=>{if(activeFilm)activeFilm.cancelled=true};
 function animationPalette(text,index=0){
@@ -243,25 +289,87 @@ function drawSceneBackdrop(ctx,w,h,p,time,index){
  ctx.fillStyle=p.ground;ctx.beginPath();ctx.moveTo(0,h*.64);ctx.quadraticCurveTo(w*.5,h*.49,w,h*.62);ctx.lineTo(w,h);ctx.lineTo(0,h);ctx.fill()
 }
 function sceneMotion(scene,time,duration,w,h,index){
- const t=[scene.title,scene.action].join(' ').toLowerCase(),p=Math.max(0,Math.min(1,time/Math.max(1,duration))),ease=p*p*(3-2*p);
- if(/jump|leap|hop|spring|उछल|छलांग/.test(t))return {x:w*.2+ease*w*.6,y:h*.69-Math.sin(p*Math.PI)*h*.2,rotation:Math.sin(p*Math.PI*2)*.05,scale:1};
- if(/fly|soar|glide|ascend|उड़|आसमान/.test(t))return {x:w*(.18+ease*.64),y:h*(.56-.18*Math.sin(p*Math.PI)),rotation:-.04,scale:1};
- if(/run|race|chase|charge|rush|flee|escape|दौड़|भाग/.test(t))return {x:w*(.15+ease*.7),y:h*.7+Math.sin(time*9+index)*5,rotation:0,scale:1};
- if(/swim|float|drift|sail|boat|wave|तैर|लहर|नाव/.test(t))return {x:w*(.18+ease*.64),y:h*(.69+Math.sin(time*2.5+index)*h*.025),rotation:Math.sin(time*2+index)*.035,scale:1};
- if(/walk|travel|ride|move|approach|journey|march|चल|यात्रा|सवार/.test(t))return {x:w*(.24+ease*.52),y:h*.7+Math.sin(time*4+index)*4,rotation:0,scale:1};
- if(/climb|rise|grow|bloom|open|unfold|बढ़|खिल|खुल/.test(t))return {x:w*.5,y:h*(.71-.12*ease),rotation:0,scale:.72+.28*ease};
- if(/spin|turn|whirl|dance|twirl|नाच|घूम/.test(t))return {x:w*.5+Math.sin(time*2+index)*w*.08,y:h*.7,rotation:Math.sin(time*5+index)*.16,scale:1};
- if(/fall|drop|sink|गिर|डूब/.test(t))return {x:w*.5,y:h*(.52+.18*ease),rotation:.12*ease,scale:1};
- return {x:w*(.5+Math.sin(time*.65+index)*.025),y:h*(.7+Math.sin(time*2.2+index)*.008),rotation:0,scale:1}
+ const text=[scene.title,scene.action,scene.visual_prompt].join(' ').toLowerCase();
+ const p=Math.max(0,Math.min(1,time/Math.max(1,duration))),ease=p*p*(3-2*p);
+ if(/jump|leap|hop|spring|vault|उछल|छलांग/.test(text))return {x:w*(.18+ease*.64),y:h*.69-Math.sin(p*Math.PI)*h*.23,rotation:Math.sin(p*Math.PI*2)*.08,scale:1+.06*Math.sin(p*Math.PI)};
+ if(/fly|soar|glide|ascend|उड़|आसमान/.test(text))return {x:w*(.14+ease*.72),y:h*(.55-.2*Math.sin(p*Math.PI)),rotation:-.05,scale:1};
+ if(/run|race|chase|charge|rush|flee|escape|gallop|दौड़|भाग/.test(text))return {x:w*(.13+ease*.74),y:h*.69+Math.sin(time*11+index)*6,rotation:-.04,scale:1};
+ if(/dodge|swerve|duck|hide|avoid|चकमा|छिप/.test(text))return {x:w*(.5+Math.sin(time*5+index)*.17),y:h*(.69-Math.abs(Math.sin(time*5+index))*.1),rotation:Math.sin(time*5+index)*.08,scale:1};
+ if(/push|pull|carry|lift|help|reach|grab|hand over|deliver|धक्का|मदद/.test(text))return {x:w*(.35+ease*.3),y:h*.69+Math.sin(time*3+index)*3,rotation:Math.sin(time*3+index)*.025,scale:1};
+ if(/swim|float|drift|sail|boat|wave|तैर|लहर|नाव/.test(text))return {x:w*(.16+ease*.68),y:h*(.68+Math.sin(time*2.5+index)*h*.025),rotation:Math.sin(time*2+index)*.04,scale:1};
+ if(/walk|travel|ride|move|approach|journey|march|arrive|discover|explore|चल|यात्रा|सवार|खोज/.test(text))return {x:w*(.2+ease*.6),y:h*.69+Math.sin(time*4+index)*4,rotation:Math.sin(time*2+index)*.015,scale:1};
+ if(/wave|signal|cheer|celebrat|salute|point|greet|raise|victory|लहर|अभिवादन/.test(text))return {x:w*(.5+Math.sin(time*1.4+index)*.035),y:h*.69+Math.sin(time*3+index)*3,rotation:Math.sin(time*1.4+index)*.025,scale:1};
+ if(/climb|rise|grow|bloom|open|unfold|बढ़|खिल|खुल/.test(text))return {x:w*(.42+ease*.16),y:h*(.71-.14*ease),rotation:0,scale:.76+.24*ease};
+ if(/spin|turn|whirl|dance|twirl|नाच|घूम/.test(text))return {x:w*.5+Math.sin(time*2+index)*w*.09,y:h*.69,rotation:Math.sin(time*5+index)*.2,scale:1};
+ if(/fall|drop|sink|stumble|trip|गिर|डूब/.test(text))return {x:w*(.5+.04*Math.sin(time*2)),y:h*(.53+.17*ease),rotation:.14*ease,scale:1};
+ return {x:w*(.47+Math.sin(time*.9+index)*.035),y:h*(.69+Math.sin(time*2.4+index)*.012),rotation:0,scale:1};
 }
 function stableCharacterHue(){let n=0;for(const ch of (storyboard?.title||'CINE AI'))n=(n*31+ch.charCodeAt(0))|0;return Math.abs(n)%360}
-function drawCharacter(ctx,x,y,scale,time,index,horse){ctx.save();ctx.translate(x,y+Math.sin(time*5+index)*7);ctx.scale(scale,scale);const hue=(stableCharacterHue()+22)%360,color='hsl('+hue+' 62% 53%)',dark='hsl('+hue+' 45% 27%)';ctx.lineCap='round';ctx.lineJoin='round';ctx.fillStyle='rgba(9,12,22,.22)';ctx.beginPath();ctx.ellipse(0,8,55,12,0,0,Math.PI*2);ctx.fill();if(horse){const stride=Math.sin(time*7+index)*12;ctx.strokeStyle='#352b34';ctx.lineWidth=8;for(const leg of [-25,20]){ctx.beginPath();ctx.moveTo(leg,16);ctx.lineTo(leg+stride,65);ctx.stroke()}ctx.fillStyle='#8c9db2';ctx.beginPath();ctx.ellipse(0,-4,56,29,0,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.ellipse(37,-24,18,31,-.48,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.ellipse(49,-49,15,13,-.2,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#30283a';ctx.lineWidth=9;ctx.beginPath();ctx.moveTo(-48,-5);ctx.quadraticCurveTo(-75,-30+stride*.2,-72,-47);ctx.stroke();ctx.fillStyle='#262738';ctx.beginPath();ctx.ellipse(27,-43,7,14,-.4,0,Math.PI*2);ctx.fill();ctx.fillStyle='#171d2c';ctx.beginPath();ctx.arc(54,-50,2.4,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#342b35';ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(30,-38);ctx.quadraticCurveTo(44,-17,54,-6);ctx.stroke()}else{const swing=Math.sin(time*7+index)*.55;ctx.strokeStyle=dark;ctx.lineWidth=11;ctx.beginPath();ctx.moveTo(-14,14);ctx.lineTo(-18+Math.sin(swing)*18,50);ctx.lineTo(-28+Math.sin(swing)*28,74);ctx.moveTo(14,14);ctx.lineTo(18-Math.sin(swing)*18,50);ctx.lineTo(28-Math.sin(swing)*28,74);ctx.stroke();ctx.fillStyle=color;ctx.beginPath();ctx.ellipse(0,-7,24,34,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle=color;ctx.lineWidth=10;ctx.beginPath();ctx.moveTo(-17,-16);ctx.lineTo(-34,2+Math.sin(swing)*12);ctx.moveTo(17,-16);ctx.lineTo(34,2-Math.sin(swing)*12);ctx.stroke();ctx.fillStyle='#f1c8a8';ctx.beginPath();ctx.arc(0,-52,21,0,Math.PI*2);ctx.fill();ctx.fillStyle='#372d3d';ctx.beginPath();ctx.arc(0,-58,22,Math.PI,Math.PI*2);ctx.fill();ctx.fillRect(-21,-59,42,9);ctx.fillStyle='#252539';ctx.beginPath();ctx.arc(-7,-51,2,0,Math.PI*2);ctx.arc(7,-51,2,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#8b4550';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,-44,6,.2,Math.PI-.2);ctx.stroke()}ctx.restore()}
+function drawCharacter(ctx,x,y,scale,time,index,horse,actionText=''){
+ const action=(actionText||'').toLowerCase();
+ const running=/run|race|chase|charge|rush|flee|gallop|दौड़|भाग/.test(action);
+ const jumping=/jump|leap|hop|spring|vault|उछल|छलांग/.test(action);
+ const raised=/wave|signal|cheer|celebrat|salute|victory|raise|jump|leap|wave a flag|लहर|अभिवादन/.test(action);
+ const pointing=/point|reach|grab|offer|hand over|help|signal|दिखा|मदद/.test(action);
+ const carrying=/carry|hold|lift|shield|sword|banner|flag|पकड़|ढाल|तलवार/.test(action);
+ const stride=Math.sin(time*(running?12:jumping?8:5)+index);
+ ctx.save();
+ const bob=jumping?-Math.abs(Math.sin(time*5+index))*9:running?Math.sin(time*11+index)*4:Math.sin(time*2.8+index)*2.5;
+ ctx.translate(x,y+bob);
+ ctx.scale(scale,scale);
+ const hue=(stableCharacterHue()+22)%360,color='hsl('+hue+' 62% 53%)',dark='hsl('+hue+' 45% 27%)';
+ ctx.lineCap='round';ctx.lineJoin='round';
+ ctx.fillStyle='rgba(9,12,22,.22)';ctx.beginPath();ctx.ellipse(0,8,55,12,0,0,Math.PI*2);ctx.fill();
+ if(horse){
+  const gallop=running||/gallop|charge|run|दौڑ|भाग/.test(action),phase=time*(gallop?13:5)+index;
+  ctx.strokeStyle='#352b34';ctx.lineWidth=8;
+  [[-28,0],[20,Math.PI],[30,Math.PI],[-18,0]].forEach(([leg,offset],j)=>{const kick=Math.sin(phase+offset)* (gallop?18:8),lift=Math.max(0,Math.cos(phase+offset))*(gallop?11:3);ctx.beginPath();ctx.moveTo(leg,10);ctx.lineTo(leg+kick*.55,36-lift);ctx.lineTo(leg+kick,62-lift);ctx.stroke()});
+  ctx.fillStyle='#8c9db2';ctx.beginPath();ctx.ellipse(0,-4,56,29,0,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.ellipse(37,-24,18,31,-.48,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.ellipse(49,-49,15,13,-.2,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#30283a';ctx.lineWidth=9;ctx.beginPath();ctx.moveTo(-48,-5);ctx.quadraticCurveTo(-75,-30+Math.sin(phase)*5,-72,-47);ctx.stroke();
+  ctx.fillStyle='#262738';ctx.beginPath();ctx.ellipse(27,-43,7,14,-.4,0,Math.PI*2);ctx.fill();ctx.fillStyle='#171d2c';ctx.beginPath();ctx.arc(54,-50,2.4,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#342b35';ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(30,-38);ctx.quadraticCurveTo(44,-17,54,-6);ctx.stroke();
+ }else{
+  const lean=running?-.11:jumping?-.04:0;
+  ctx.save();ctx.rotate(lean);
+  const legSwing=jumping?stride*8:running?stride*24:Math.sin(time*5+index)*9;
+  ctx.strokeStyle=dark;ctx.lineWidth=11;
+  ctx.beginPath();ctx.moveTo(-14,12);ctx.lineTo(-18-legSwing*.45,43);ctx.lineTo(-27-legSwing,73);
+  ctx.moveTo(14,12);ctx.lineTo(18+legSwing*.45,43);ctx.lineTo(27+legSwing,73);ctx.stroke();
+  ctx.fillStyle=color;ctx.beginPath();ctx.ellipse(0,-7,24,34,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#f1c8a8';ctx.beginPath();ctx.arc(0,-52,21,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#372d3d';ctx.beginPath();ctx.arc(0,-58,22,Math.PI,Math.PI*2);ctx.fill();ctx.fillRect(-21,-59,42,9);
+  ctx.fillStyle='#252539';ctx.beginPath();ctx.arc(-7,-51,2,0,Math.PI*2);ctx.arc(7,-51,2,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#8b4550';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,-44,6,.2,Math.PI-.2);ctx.stroke();
+  ctx.strokeStyle=color;ctx.lineWidth=10;ctx.beginPath();
+  if(raised||jumping){
+   ctx.moveTo(-17,-17);ctx.lineTo(-31,-39);ctx.lineTo(-36,-62+Math.sin(time*7+index)*5);
+   ctx.moveTo(17,-17);ctx.lineTo(31,-39);ctx.lineTo(36,-62-Math.sin(time*7+index)*5);
+  }else if(pointing||carrying){
+   ctx.moveTo(-17,-17);ctx.lineTo(-32,0+stride*3);ctx.moveTo(17,-17);ctx.lineTo(34,-7);ctx.lineTo(48,-25+Math.sin(time*4+index)*3);
+  }else if(running){
+   ctx.moveTo(-17,-17);ctx.lineTo(-34+stride*10,0);ctx.lineTo(-43+stride*20,12);
+   ctx.moveTo(17,-17);ctx.lineTo(33-stride*10,-31);ctx.lineTo(43-stride*20,-42);
+  }else{
+   ctx.moveTo(-17,-17);ctx.lineTo(-31,0+stride*5);ctx.moveTo(17,-17);ctx.lineTo(31,0-stride*5);
+  }
+  ctx.stroke();
+  if(/banner|flag|ध्वज/.test(action)){
+   ctx.strokeStyle='#e7c16b';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(48,-26);ctx.lineTo(48,-79);ctx.stroke();
+   ctx.fillStyle='#dc7653';ctx.beginPath();ctx.moveTo(49,-77);ctx.lineTo(78,-69);ctx.lineTo(49,-61);ctx.closePath();ctx.fill();
+  }else if(/sword|blade|तलवार/.test(action)){
+   ctx.strokeStyle='#e9edf5';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(48,-27);ctx.lineTo(63,-54);ctx.stroke();
+  }
+  ctx.restore();
+ }
+ ctx.restore();
+}
 function drawPromptSubject(ctx,x,y,scale,time,index,text){
  const t=(text||'').toLowerCase();
  const choices=[['boat|paper boat|ship|sailboat|नाव','boat'],['cat|kitten|feline|बिल्ली','cat'],['rocket|spaceship|astronaut|रॉकेट','rocket'],['flower|blossom|फूल','flower'],['car|truck|bus|vehicle|गाड़ी','car'],['laptop|computer|screen|website|लैपटॉप','laptop'],['book|notebook|diary|किताब|पुस्तक','book'],['tree|oak|pine|palm|वृक्ष|पेड़','tree'],['cloud|मेघ|बादल','cloud'],['house|home|cottage|घर','house']];
  let kind='person',at=Infinity;
  for(const [pattern,name] of choices){const m=t.match(new RegExp(pattern,'i'));if(m&&m.index<at){at=m.index;kind=name}}
- if(kind==='person'){drawCharacter(ctx,x,y,scale,time,index,/horse|chetak|cavalry|rider|घोड़ा|घोड़े|घुड़सवार/i.test(t));return}
+ if(kind==='person'){drawCharacter(ctx,x,y,scale,time,index,/horse|chetak|cavalry|rider|घोड़ा|घोड़े|घुड़सवार/i.test(t),text);return}
  ctx.save();ctx.translate(x,y+Math.sin(time*3+index)*4);ctx.scale(scale,scale);
  ctx.fillStyle='rgba(9,12,22,.18)';ctx.beginPath();ctx.ellipse(0,16,56,11,0,0,Math.PI*2);ctx.fill();
  if(kind==='boat'){
@@ -305,11 +413,12 @@ function drawAnimatedFrame(ctx,canvas,scene,index,count,localTime,sceneDuration)
 
 async function renderAnimatedFilm(){
  if(!storyboard?.scenes?.length)return;
- const canvas=$('filmPreview'),ratio=$('ratio').value,script=$('narrationScript').value.trim();
+ const canvas=$('filmPreview'),ratio=$('ratio').value,script=$('narrationScript').value.trim(),voiceSupported='speechSynthesis' in window&&'SpeechSynthesisUtterance' in window;
  canvas.width=ratio==='9:16'?540:ratio==='1:1'?720:960;canvas.height=ratio==='9:16'?960:ratio==='1:1'?720:540;
  const ctx=canvas.getContext('2d');if(!ctx){$('renderStatus').textContent='This browser could not create a canvas video.';return}
  if(!window.MediaRecorder||!canvas.captureStream){$('renderStatus').textContent='Video export is not supported here. Try current Chrome or Edge.';return}
- const voice=speechSynthesis.getVoices().find(v=>v.voiceURI===$('narrationVoice').value);
+ if(script&&!voiceSupported){$('narrationStatus').textContent='This browser does not support computer narration. Try current Chrome or Edge.';return}
+ const voice=voiceSupported?speechSynthesis.getVoices().find(v=>v.voiceURI===$('narrationVoice').value):null;
  if(script&&!voice){$('narrationStatus').textContent='No installed voice is available. Add a voice in your computer settings, then reload this page.';return}
  const types=['video/mp4;codecs=avc1.42E01E','video/mp4','video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'],mime=types.find(type=>MediaRecorder.isTypeSupported(type));
  if(!mime){$('renderStatus').textContent='This browser cannot record a supported video format.';return}
@@ -368,6 +477,6 @@ async function renderAnimatedFilm(){
 }
 
 function download(){if(!storyboard){alert('Create a movie plan first.');return}const blob=new Blob([JSON.stringify(storyboard,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='cine-ai-storyboard.json';a.click();URL.revokeObjectURL(url)}
-$('maharanaPreset').onclick=()=>{$('idea').value='Create a 30-second, respectful flat-vector short about Maharana Pratap of Mewar. Show his leadership, the Battle of Haldighati in 1576 and the retreat that followed, his continued resistance, and the recovery of much of western Mewar by 1579. Present Chetak’s loyalty as a traditional story. Do not invent quotations or claim that Mewar won the Battle of Haldighati.';$('sceneDetails').value='Scene 1: Sunrise over the Aravalli hills; animate a simple map highlighting Mewar and its forts.\nScene 2: Show Maharana Pratap with Mewar’s people, using a consistent saffron-turban character design.\nScene 3: Show the yellow pass of Haldighati in 1576, with non-graphic cavalry silhouettes and banners.\nScene 4: Show Pratap leaving the battlefield on Chetak; label this as a traditional account.\nScene 5: Show the resistance continuing through the Aravalli hills.\nScene 6: Highlight much of western Mewar restored by 1579, then end with Pratap looking over the hills.';$('narrationScript').value='मेवाड़ के महाराणा प्रताप ने अपने राज्य के स्वाभिमान और स्वतंत्रता की रक्षा का संकल्प लिया। 1576 में हल्दीघाटी के युद्ध के बाद, मेवाड़ की सेना को पीछे हटना पड़ा; लेकिन संघर्ष नहीं रुका। लोकपरंपरा चेतक की निष्ठा को आज भी याद करती है। प्रताप ने प्रतिरोध जारी रखा और 1579 तक पश्चिमी मेवाड़ के अधिकांश खोए प्रदेश फिर हासिल किए। उनका जीवन साहस, धैर्य और दृढ़ नेतृत्व की प्रेरणा है।';$('title').value='Maharana Pratap: A Legacy of Resolve';$('duration').value='30';$('language').value='Hindi';refreshNarrationVoices();$('idea').focus()};
+$('maharanaPreset').onclick=()=>{$('idea').value='Create a 30-second, respectful flat-vector short about Maharana Pratap of Mewar. Show his leadership, the Battle of Haldighati in 1576 and the retreat that followed, his continued resistance, and the recovery of much of western Mewar by 1579. Present Chetak’s loyalty as a traditional story. Do not invent quotations or claim that Mewar won the Battle of Haldighati.';$('sceneDetails').value='Scene 1: Sunrise over the Aravalli hills; animate a simple map highlighting Mewar and its forts.\nScene 2: Show Maharana Pratap with Mewar’s people, using a consistent saffron-turban character design.\nScene 3: Show the yellow pass of Haldighati in 1576, with non-graphic cavalry silhouettes and banners.\nScene 4: Show Pratap leaving the battlefield on Chetak; label this as a traditional account.\nScene 5: Show the resistance continuing through the Aravalli hills.\nScene 6: Highlight much of western Mewar restored by 1579, then end with Pratap looking over the hills.';$('narrationScript').value='मेवाड़ के महाराणा प्रताप ने अपने राज्य के स्वाभिमान और स्वतंत्रता की रक्षा का संकल्प लिया। 1576 में हल्दीघाटी के युद्ध के बाद, मेवाड़ की सेना को पीछे हटना पड़ा; लेकिन संघर्ष नहीं रुका। लोकपरंपरा चेतक की निष्ठा को आज भी याद करती है। प्रताप ने प्रतिरोध जारी रखा और 1579 तक पश्चिमी मेवाड़ के अधिकांश खोए प्रदेश फिर हासिल किए। उनका जीवन साहस, धैर्य और दृढ़ नेतृत्व की प्रेरणा है।';$('narrationScript').dataset.userEdited='false';$('title').value='Maharana Pratap: A Legacy of Resolve';$('duration').value='30';$('language').value='Hindi';refreshNarrationVoices();$('idea').focus()};
 $('exportBtn').onclick=download;$('saveBtn').onclick=()=>{if(!storyboard){alert('Create a movie plan first.');return}try{localStorage.setItem('cine-ai-storyboard-v1',JSON.stringify(storyboard));alert('Storyboard saved in this browser.')}catch(e){alert('Browser storage is full. Export the JSON instead.')}};
 </script></body></html>
