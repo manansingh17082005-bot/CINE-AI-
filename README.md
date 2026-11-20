@@ -106,3 +106,14 @@ The story generator now attempts to use the configured local Ollama chat model t
 Each scene includes a **Generate AI video clip** action for submitting that scene's prompt to the configured ComfyUI workflow. This creates scene clips individually; it does not yet automatically assemble all AI-generated clips into one finished film. The browser renderer remains available for stickman and vector modes and exports the browser-supported MP4 or WebM format.
 
 **Zero-cost note:** browser-rendered animation and local Ollama/ComfyUI software do not require a paid video subscription. Actual 3D AI video generation still depends on suitable models and hardware. An 8 GB RAM laptop with integrated graphics may be able to run the studio and lightweight planning, but may not be able to run modern video-generation models locally.
+
+
+## V4: multi-scene energetic Hinglish narration
+- Default short-form duration: 75 seconds, with 60- and 90-second options.
+- Choose 10, 12 or 15 scenes; scene timings are distributed across the selected runtime.
+- Ollama screenplay prompts request a connected, energetic Hinglish voiceover for every scene, with dialogue kept separate.
+- Each scene has an editable narration field; the master narration preview is assembled from those scene lines.
+- During browser rendering, the selected installed system voice speaks each scene in sequence. The browser asks the user to share the current tab with tab audio enabled so the narration audio can be recorded alongside the canvas video.
+- The voice is supplied by the user's browser/operating-system speech engine; this is not a dedicated studio-grade TTS service. Available voices and Hinglish pronunciation vary by computer.
+- Browser export is WebM or MP4 depending on supported MediaRecorder codecs. Keep the tab open while rendering.
+- This scene-timed voice workflow applies to the browser-rendered 2D modes. 3D ComfyUI scene clips still need a separate clip-assembly and audio-muxing stage before a complete narrated film can be exported.
