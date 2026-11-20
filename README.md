@@ -91,3 +91,18 @@ Magic Hour's official docs describe free signup credits, the free-tier default m
 - The private CINE access token is stored in the current browser tab's session storage, not committed to the repository. Anyone who knows that token can use the proxy, so keep it private and rotate it if exposed.
 - The function accepts requests only from this GitHub Pages origin and checks the private token server-side.
 - The free-tier check prevents use when the account has a paid subscription. It cannot distinguish free signup credits from credit packs purchased on a free-tier account; do not purchase credits if you require zero spend.
+
+
+## Current animation studio update (2026-11-20)
+
+The website now offers four selectable visual styles:
+- **2D stickman / line-man** — animated line characters rendered in the browser.
+- **2D cartoon** — browser-rendered vector animation.
+- **3D cartoon cinematic** — creates cinematic prompts; actual AI footage requires a compatible local ComfyUI video workflow and installed model.
+- **Flat vector** — the original lightweight browser animation style.
+
+The story generator now attempts to use the configured local Ollama chat model to create a full screenplay, characters, scenes and shot prompts. If Ollama is unavailable or returns an invalid response, the app falls back to its basic built-in storyboard planner.
+
+Each scene includes a **Generate AI video clip** action for submitting that scene's prompt to the configured ComfyUI workflow. This creates scene clips individually; it does not yet automatically assemble all AI-generated clips into one finished film. The browser renderer remains available for stickman and vector modes and exports the browser-supported MP4 or WebM format.
+
+**Zero-cost note:** browser-rendered animation and local Ollama/ComfyUI software do not require a paid video subscription. Actual 3D AI video generation still depends on suitable models and hardware. An 8 GB RAM laptop with integrated graphics may be able to run the studio and lightweight planning, but may not be able to run modern video-generation models locally.
