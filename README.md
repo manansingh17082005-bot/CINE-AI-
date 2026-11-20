@@ -117,3 +117,12 @@ Each scene includes a **Generate AI video clip** action for submitting that scen
 - The voice is supplied by the user's browser/operating-system speech engine; this is not a dedicated studio-grade TTS service. Available voices and Hinglish pronunciation vary by computer.
 - Browser export is WebM or MP4 depending on supported MediaRecorder codecs. Keep the tab open while rendering.
 - This scene-timed voice workflow applies to the browser-rendered 2D modes. 3D ComfyUI scene clips still need a separate clip-assembly and audio-muxing stage before a complete narrated film can be exported.
+
+
+## V5: scene environments and Indian Hindi voice
+
+- Each storyboard scene now has a background selector: Auto, palace/fort, battlefield, forest, desert, city, night city, mountains, ocean, space, snow, map, and indoor room.
+- A manually selected background is stored with the scene in the storyboard JSON and used by the browser animation renderer. Auto continues to choose an environment from the scene prompt.
+- Narrator voice selection now prioritizes installed `hi-IN` Hindi (India) voices and auto-selects one when available. If no Indian Hindi voice is installed, the UI explains how to add Hindi speech in Windows Settings.
+- Voice quality and availability depend on Windows and the browser's installed speech voices. For the most natural Hindi delivery, choose Hindi narration (Devanagari script) and preview before rendering. Hinglish remains available.
+- These backgrounds are procedurally drawn 2D environments in the browser renderer, not AI-generated photographic backgrounds. The ComfyUI 3D/video workflow remains a separate path.
