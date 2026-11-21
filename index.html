@@ -17,8 +17,8 @@
 </section>
 <div class="field"><label>SCENE-BY-SCENE DETAILS (OPTIONAL)</label><textarea id="sceneDetails" style="min-height:125px" placeholder="Scene 1: Show the rainy street at night, with blue puddles and warm yellow windows.\nScene 2: The paper boat floats past a red umbrella.\nScene 3: A friendly cat helps it reach a bright canal.\nEnding: The boat finds a child waiting at the door."></textarea><span class="small">Include what we see, who appears, colors, movement, mood, and how each scene ends.</span></div><div class="row"><button id="maharanaPreset">Load Maharana Pratap story</button><span class="small">Loads a short historical scene plan and Hindi narration script</span></div>
 <div class="row"><div class="field"><label>MOVIE TITLE (OPTIONAL)</label><input id="title" placeholder="The Dragon in the Library"></div><div class="field"><label>DURATION</label><select id="duration"><option value="60">60 seconds</option><option value="75" selected>75 seconds</option><option value="90">90 seconds</option></select></div></div>
-<h3 style="margin-top:18px">02 / Choose your animation style</h3><div class="stylegrid" id="styles"><label class="style active"><input type="radio" name="style" value="2D stickman line animation" checked> Stickman / Line-man</label><label class="style"><input type="radio" name="style" value="2D cartoon animation"> 2D Cartoon</label><label class="style"><input type="radio" name="style" value="3D cartoon cinematic animation"> 3D Cinematic</label><label class="style"><input type="radio" name="style" value="2D flat-vector motion graphics"> Flat Vector</label></div><p class="small">Stickman and flat-vector styles render in your browser. 3D cinematic clips require a compatible local ComfyUI video workflow.</p>
-<div class="row" style="margin-top:14px"><div class="field"><label>VIDEO FRAME</label><select id="ratio"><option value="16:9">16:9 — YouTube / Film</option><option value="9:16">9:16 — Reels / Shorts</option><option value="1:1">1:1 — Square</option></select></div><div class="field"><label>NARRATION LANGUAGE</label><select id="language"><option>Hinglish (Hindi + English)</option><option>Hindi</option><option>English</option></select></div><div class="field"><label>NUMBER OF SCENES</label><select id="sceneCount"><option value="10">10 scenes</option><option value="12" selected>12 scenes</option><option value="15">15 scenes</option></select></div></div>
+<h3 style="margin-top:18px">02 / Choose your animation style</h3><div class="stylegrid" id="styles"><label class="style active"><input type="radio" name="style" value="2D cinematic stickman animation" checked> Cinematic Stickman</label><label class="style"><input type="radio" name="style" value="2D cartoon animation"> 2D Cartoon</label><label class="style"><input type="radio" name="style" value="3D cartoon cinematic animation"> 3D Cinematic</label><label class="style"><input type="radio" name="style" value="2D flat-vector motion graphics"> Flat Vector</label></div><p class="small">Cinematic Stickman and flat-vector styles render in your browser. 3D cinematic clips require a compatible local ComfyUI video workflow.</p>
+<div class="row" style="margin-top:14px"><div class="field"><label>VIDEO FRAME</label><select id="ratio"><option value="16:9">16:9 — YouTube / Film</option><option value="9:16">9:16 — Reels / Shorts</option><option value="1:1">1:1 — Square</option></select></div><div class="field"><label>NARRATION LANGUAGE</label><select id="language"><option>Hinglish (Hindi + English)</option><option>Hindi</option><option>English</option></select></div><div class="field"><label>NUMBER OF SCENES</label><select id="sceneCount"><option value="5" selected>5 scenes</option><option value="10">10 scenes</option><option value="12">12 scenes</option><option value="15">15 scenes</option></select></div></div>
 <button class="primary" id="generate" style="width:100%;padding:14px;font-size:16px">✦ Build my scenes</button><div id="progress" class="hide"><div id="bar"></div></div><div id="status" class="small" style="margin-top:9px">Ready. Write your idea to begin.</div>
 <div class="notice" style="margin-top:14px"><b>FREE LOCAL ANIMATION</b><br>Stickman, cartoon-style vector scenes and story videos render in your browser. For generated 3D cinematic footage, connect a compatible ComfyUI video workflow. No paid video service is required for the browser-rendered modes.</div>
 <section class="card" style="margin:14px 0;background:#10141d"><h3>02A / Energetic narrator & audio</h3><p class="small">CINE AI creates scene-by-scene narration. Hindi (India) voices are preferred automatically when installed; choose a different voice below if you want. Hinglish and English scripts are also supported. Preview the voice before rendering. To include the computer voice, your browser will ask to share a tab temporarily. Choose <b>This tab</b> and enable <b>Share tab audio</b>. Only the voice audio is put in your video; the shared screen image is not recorded.</p><div class="field"><label>NARRATION SCRIPT</label><textarea id="narrationScript" readonly style="min-height:110px" placeholder="Write what you want the computer voice to say. Try the Maharana Pratap example above."></textarea></div><div class="row"><div class="field"><label>NARRATOR VOICE · PREFER HINDI (INDIA)</label><select id="narrationVoice"></select></div><button id="previewNarration">Preview voice</button><button id="stopNarrationVoice">Stop voice</button></div><div id="narrationStatus" class="small" style="margin-top:8px">Loading voices available on this computer…</div></section>
@@ -40,7 +40,7 @@
 <div class="notice"><b>Setup note</b><br>Export an API-format workflow from ComfyUI, paste it above, then enter the ID of the text-prompt node and the exact prompt input name. Model and workflow compatibility depend on what is installed on this computer.</div>
 <div id="generationStatus" class="status warn">Workflow not configured yet. ComfyUI connection alone does not generate a video.</div><h3 style="margin-top:20px">What gets created?</h3><ul class="small"><li>Movie outline and scene sequence</li><li>Character and visual continuity guidance</li><li>Camera and motion prompts per scene</li><li>Timing and transition suggestions</li><li>Exportable storyboard JSON</li></ul></aside></div>
 <section class="card" style="margin-top:16px"><div class="row"><div><h3>04 / Your film production package</h3><p class="small">Review the scenes, edit any scene direction, then render your short video in the browser.</p></div><span class="pill" id="sceneBadge">0 scenes</span></div><div id="results" class="empty">Your movie scenes will appear here after you generate a plan.</div></section>
-<div class="footer">CINE AI · Flat-vector motion graphics made in your browser</div></main>
+<div class="footer">CINE AI · Cinematic 2D stories, animated in your browser</div></main>
 <script>
 const $=id=>document.getElementById(id);let storyboard=null;let generatedVideos={};let activeFilm=null;let filmOutputUrl=null;let activeSpeech=null;
 document.querySelectorAll('.style').forEach(l=>l.addEventListener('click',()=>{document.querySelectorAll('.style').forEach(x=>x.classList.remove('active'));l.classList.add('active');l.querySelector('input').checked=true}));
@@ -307,21 +307,58 @@ function sceneMotion(scene,time,duration,w,h,index){
 }
 function stableCharacterHue(){let n=0;for(const ch of (storyboard?.title||'CINE AI'))n=(n*31+ch.charCodeAt(0))|0;return Math.abs(n)%360}
 function drawCharacter(ctx,x,y,scale,time,index,horse){ctx.save();ctx.translate(x,y+Math.sin(time*5+index)*7);ctx.scale(scale,scale);const hue=(stableCharacterHue()+22)%360,color='hsl('+hue+' 62% 53%)',dark='hsl('+hue+' 45% 27%)';ctx.lineCap='round';ctx.lineJoin='round';ctx.fillStyle='rgba(9,12,22,.22)';ctx.beginPath();ctx.ellipse(0,8,55,12,0,0,Math.PI*2);ctx.fill();if(horse){const stride=Math.sin(time*7+index)*12;ctx.strokeStyle='#352b34';ctx.lineWidth=8;for(const leg of [-25,20]){ctx.beginPath();ctx.moveTo(leg,16);ctx.lineTo(leg+stride,65);ctx.stroke()}ctx.fillStyle='#8c9db2';ctx.beginPath();ctx.ellipse(0,-4,56,29,0,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.ellipse(37,-24,18,31,-.48,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.ellipse(49,-49,15,13,-.2,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#30283a';ctx.lineWidth=9;ctx.beginPath();ctx.moveTo(-48,-5);ctx.quadraticCurveTo(-75,-30+stride*.2,-72,-47);ctx.stroke();ctx.fillStyle='#262738';ctx.beginPath();ctx.ellipse(27,-43,7,14,-.4,0,Math.PI*2);ctx.fill();ctx.fillStyle='#171d2c';ctx.beginPath();ctx.arc(54,-50,2.4,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#342b35';ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(30,-38);ctx.quadraticCurveTo(44,-17,54,-6);ctx.stroke()}else{const swing=Math.sin(time*7+index)*.55;ctx.strokeStyle=dark;ctx.lineWidth=11;ctx.beginPath();ctx.moveTo(-14,14);ctx.lineTo(-18+Math.sin(swing)*18,50);ctx.lineTo(-28+Math.sin(swing)*28,74);ctx.moveTo(14,14);ctx.lineTo(18-Math.sin(swing)*18,50);ctx.lineTo(28-Math.sin(swing)*28,74);ctx.stroke();ctx.fillStyle=color;ctx.beginPath();ctx.ellipse(0,-7,24,34,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle=color;ctx.lineWidth=10;ctx.beginPath();ctx.moveTo(-17,-16);ctx.lineTo(-34,2+Math.sin(swing)*12);ctx.moveTo(17,-16);ctx.lineTo(34,2-Math.sin(swing)*12);ctx.stroke();ctx.fillStyle='#f1c8a8';ctx.beginPath();ctx.arc(0,-52,21,0,Math.PI*2);ctx.fill();ctx.fillStyle='#372d3d';ctx.beginPath();ctx.arc(0,-58,22,Math.PI,Math.PI*2);ctx.fill();ctx.fillRect(-21,-59,42,9);ctx.fillStyle='#252539';ctx.beginPath();ctx.arc(-7,-51,2,0,Math.PI*2);ctx.arc(7,-51,2,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#8b4550';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,-44,6,.2,Math.PI-.2);ctx.stroke()}ctx.restore()}
-function drawStickmanCharacter(ctx,x,y,scale,time,index){
- ctx.save();ctx.translate(x,y+Math.sin(time*5+index)*5);ctx.scale(scale,scale);
- const stride=Math.sin(time*7+index)*18,arm=Math.sin(time*7+index+Math.PI)*15;
- ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle='#171b25';ctx.lineWidth=9;
- ctx.fillStyle='rgba(9,12,22,.2)';ctx.beginPath();ctx.ellipse(0,9,48,10,0,0,Math.PI*2);ctx.fill();
- ctx.beginPath();ctx.moveTo(0,-5);ctx.lineTo(-13+stride*.45,30);ctx.lineTo(-20+stride,67);
- ctx.moveTo(0,-5);ctx.lineTo(13-stride*.45,30);ctx.lineTo(20-stride,67);ctx.stroke();
- ctx.beginPath();ctx.moveTo(0,-48);ctx.lineTo(0,-5);
- ctx.moveTo(0,-38);ctx.lineTo(-24-arm*.35,-17);ctx.lineTo(-34-arm,1);
- ctx.moveTo(0,-38);ctx.lineTo(24+arm*.35,-17);ctx.lineTo(34+arm,1);ctx.stroke();
- ctx.fillStyle='#fff4df';ctx.beginPath();ctx.arc(0,-67,19,0,Math.PI*2);ctx.fill();
- ctx.strokeStyle='#171b25';ctx.lineWidth=5;ctx.stroke();
- ctx.fillStyle='#171b25';ctx.beginPath();ctx.arc(-6,-69,2.2,0,Math.PI*2);ctx.arc(6,-69,2.2,0,Math.PI*2);ctx.fill();
- ctx.strokeStyle='#a34f54';ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(0,-62,5,.15,Math.PI-.15);ctx.stroke();
- ctx.fillStyle='#e85b63';ctx.beginPath();ctx.moveTo(-7,-48);ctx.lineTo(8,-48);ctx.lineTo(12,-38);ctx.lineTo(0,-42);ctx.closePath();ctx.fill();
+function drawStickmanCharacter(ctx,x,y,scale,time,index,text=''){
+ ctx.save();
+ const action=(text||'').toLowerCase(),walk=/walk|run|chase|escape|march|charge|दौड़|भाग|चल/.test(action);
+ const jump=/jump|leap|hop|उछल|छलांग/.test(action);
+ const fight=/fight|punch|battle|attack|defend|युद्ध|लड़/.test(action);
+ const stride=walk?Math.sin(time*8+index)*22:Math.sin(time*2+index)*3;
+ const armSwing=walk?Math.sin(time*8+index+Math.PI)*18:Math.sin(time*2.6+index)*5;
+ const hop=jump?Math.max(0,Math.sin((time/2.2)*Math.PI))*22:0;
+ const hue=stableCharacterHue(),coat='hsl('+hue+' 58% 48%)',coatLight='hsl('+hue+' 68% 66%)',coatDark='hsl('+hue+' 48% 27%)';
+ ctx.translate(x,y+Math.sin(time*3+index)*3-hop);ctx.scale(scale,scale);
+ ctx.lineCap='round';ctx.lineJoin='round';
+ // Ground shadow and cinematic rim light
+ ctx.fillStyle='rgba(5,8,16,.34)';ctx.beginPath();ctx.ellipse(0,12,54,12,0,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='rgba(255,218,153,.12)';ctx.beginPath();ctx.ellipse(0,7,65,17,0,0,Math.PI*2);ctx.fill();
+ // Legs, trousers and detailed boots
+ ctx.strokeStyle='#252638';ctx.lineWidth=13;ctx.beginPath();
+ ctx.moveTo(-8,4);ctx.lineTo(-15+stride*.55,38);ctx.lineTo(-25+stride,69);
+ ctx.moveTo(8,4);ctx.lineTo(15-stride*.55,38);ctx.lineTo(25-stride,69);ctx.stroke();
+ ctx.strokeStyle='#b7c2d4';ctx.lineWidth=2.5;ctx.beginPath();
+ ctx.moveTo(-15+stride*.55,39);ctx.lineTo(-25+stride,61);
+ ctx.moveTo(15-stride*.55,39);ctx.lineTo(25-stride,61);ctx.stroke();
+ ctx.fillStyle='#171b29';ctx.beginPath();
+ ctx.roundRect(-39+stride,65,24,11,5);ctx.roundRect(17-stride,65,24,11,5);ctx.fill();
+ ctx.fillStyle='#d7b477';ctx.fillRect(-34+stride,67,8,2);ctx.fillRect(22-stride,67,8,2);
+ // Torso with layered tunic, collar and belt
+ ctx.fillStyle=coatDark;ctx.beginPath();ctx.moveTo(-17,-42);ctx.lineTo(17,-42);ctx.lineTo(22,2);ctx.quadraticCurveTo(0,12,-22,2);ctx.closePath();ctx.fill();
+ ctx.fillStyle=coat;ctx.beginPath();ctx.moveTo(-14,-43);ctx.lineTo(14,-43);ctx.lineTo(18,-1);ctx.quadraticCurveTo(0,7,-18,-1);ctx.closePath();ctx.fill();
+ ctx.fillStyle=coatLight;ctx.beginPath();ctx.moveTo(-7,-40);ctx.lineTo(0,-31);ctx.lineTo(7,-40);ctx.lineTo(3,-5);ctx.lineTo(-3,-5);ctx.closePath();ctx.fill();
+ ctx.strokeStyle='#e4c27d';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(-17,-4);ctx.lineTo(17,-4);ctx.stroke();
+ ctx.fillStyle='#f1d18e';ctx.fillRect(-3,-9,6,9);
+ // Arms: action-aware pose, with sleeves and visible hands
+ const armY=fight?-31:-20,guard=fight?1:0;
+ ctx.strokeStyle=coatDark;ctx.lineWidth=13;ctx.beginPath();
+ ctx.moveTo(-15,-34);ctx.lineTo(-30-armSwing*.45,armY+armSwing*.25);ctx.lineTo(-37-armSwing, fight?-44:4+armSwing);
+ ctx.moveTo(15,-34);ctx.lineTo(30+armSwing*.45,armY-armSwing*.25);ctx.lineTo(37+armSwing, fight?-26:4-armSwing);ctx.stroke();
+ ctx.strokeStyle='#e2b99a';ctx.lineWidth=8;ctx.beginPath();
+ ctx.moveTo(-37-armSwing,fight?-44:4+armSwing);ctx.lineTo(-40-armSwing,fight?-39:10+armSwing);
+ ctx.moveTo(37+armSwing,fight?-26:4-armSwing);ctx.lineTo(40+armSwing,fight?-21:10-armSwing);ctx.stroke();
+ ctx.fillStyle=coatLight;ctx.beginPath();ctx.arc(-29-armSwing*.45,armY+armSwing*.25,7,0,Math.PI*2);ctx.arc(29+armSwing*.45,armY-armSwing*.25,7,0,Math.PI*2);ctx.fill();
+ // Neck and expressive face
+ ctx.fillStyle='#c98e70';ctx.fillRect(-6,-55,12,15);
+ ctx.fillStyle='#d9a889';ctx.beginPath();ctx.arc(0,-69,22,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='#f0c5a4';ctx.beginPath();ctx.ellipse(-7,-75,8,6,-.3,0,Math.PI*2);ctx.fill();
+ // Hair silhouette and fringe
+ ctx.fillStyle='#24202a';ctx.beginPath();ctx.arc(0,-76,23,Math.PI,Math.PI*2);ctx.lineTo(22,-68);ctx.quadraticCurveTo(11,-79,4,-71);ctx.quadraticCurveTo(-8,-82,-22,-67);ctx.closePath();ctx.fill();
+ // Eyes, brows and expression
+ ctx.strokeStyle='#49303a';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(-13,-70);ctx.lineTo(-5,-72);ctx.moveTo(5,-72);ctx.lineTo(13,-70);ctx.stroke();
+ ctx.fillStyle='#20202b';ctx.beginPath();ctx.arc(-9,-67,2.5,0,Math.PI*2);ctx.arc(9,-67,2.5,0,Math.PI*2);ctx.fill();
+ ctx.strokeStyle='#8a454b';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,-58,6,.15,Math.PI-.15);ctx.stroke();
+ // Signature scarf / backlight accent for recognisable continuity
+ ctx.fillStyle='#e6b95f';ctx.beginPath();ctx.moveTo(-11,-46);ctx.lineTo(11,-46);ctx.lineTo(16,-37);ctx.lineTo(2,-40);ctx.closePath();ctx.fill();
+ ctx.strokeStyle='rgba(255,224,166,.65)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,-69,25,Math.PI*1.08,Math.PI*1.92);ctx.stroke();
  ctx.restore();
 }
 function drawPromptSubject(ctx,x,y,scale,time,index,text){
@@ -329,7 +366,7 @@ function drawPromptSubject(ctx,x,y,scale,time,index,text){
  const choices=[['boat|paper boat|ship|sailboat|नाव','boat'],['cat|kitten|feline|बिल्ली','cat'],['rocket|spaceship|astronaut|रॉकेट','rocket'],['flower|blossom|फूल','flower'],['car|truck|bus|vehicle|गाड़ी','car'],['laptop|computer|screen|website|लैपटॉप','laptop'],['book|notebook|diary|किताब|पुस्तक','book'],['tree|oak|pine|palm|वृक्ष|पेड़','tree'],['cloud|मेघ|बादल','cloud'],['house|home|cottage|घर','house']];
  let kind='person',at=Infinity;
  for(const [pattern,name] of choices){const m=t.match(new RegExp(pattern,'i'));if(m&&m.index<at){at=m.index;kind=name}}
- if(kind==='person'){const isHorse=/horse|chetak|cavalry|rider|घोड़ा|घोड़े|घुड़सवार/i.test(t);if(!isHorse&&/stickman|line-man/i.test(storyboard?.style||''))drawStickmanCharacter(ctx,x,y,scale,time,index);else drawCharacter(ctx,x,y,scale,time,index,isHorse);return}
+ if(kind==='person'){const isHorse=/horse|chetak|cavalry|rider|घोड़ा|घोड़े|घुड़सवार/i.test(t);if(!isHorse&&/stickman|line-man/i.test(storyboard?.style||''))drawStickmanCharacter(ctx,x,y,scale,time,index,text);else drawCharacter(ctx,x,y,scale,time,index,isHorse);return}
  ctx.save();ctx.translate(x,y+Math.sin(time*3+index)*4);ctx.scale(scale,scale);
  ctx.fillStyle='rgba(9,12,22,.18)';ctx.beginPath();ctx.ellipse(0,16,56,11,0,0,Math.PI*2);ctx.fill();
  if(kind==='boat'){
