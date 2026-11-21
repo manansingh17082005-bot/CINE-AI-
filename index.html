@@ -404,8 +404,9 @@ async function renderAnimatedFilm(){
  }
  const scenes=storyboard.scenes,durations=scenes.map(s=>Math.max(2,Number(s.duration_seconds)||8)),total=durations.reduce((a,b)=>a+b,0),chunks=[];
  try{
-  canvasStream=canvas.captureStream(15);recordingStream=new MediaStream([...canvasStream.getVideoTracks(),...(displayStream?displayStream.getAudioTracks():[])]);
-  try{recorder=new MediaRecorder(recordingStream,{mimeType:mime,videoBitsPerSecond:1300000})}catch{recorder=new MediaRecorder(recordingStream)}
+  canvasStream=canvas.captureStream(15);const sharedAudioTracks=displayStream?displayStream.getAudioTracks().filter(track=>track.readyState==='live'):[];sharedAudioTracks.forEach(track=>{track.enabled=true;try{track.contentHint='speech'}catch{}});recordingStream=new MediaStream([...canvasStream.getVideoTracks(),...sharedAudioTracks]);
+  if(script&&!recordingStream.getAudioTracks().length)throw new Error('The shared tab audio track is missing. Re-render and enable Share tab audio.');
+  try{recorder=new MediaRecorder(recordingStream,{mimeType:mime,videoBitsPerSecond:1300000,audioBitsPerSecond:128000})}catch{recorder=new MediaRecorder(recordingStream)}
  }catch(e){[canvasStream,displayStream,recordingStream].filter(Boolean).forEach(st=>st.getTracks().forEach(t=>t.stop()));$('renderStatus').textContent='Could not start video export: '+e.message;return}
  canvas.style.display='block';$('filmOutput').innerHTML='';$('renderFilm').disabled=true;$('cancelFilm').disabled=false;
  $('renderStatus').textContent='Rendering '+Math.round(total)+' seconds'+(script?' with the computer voice · keep this tab open.':' · keep this tab open.');
