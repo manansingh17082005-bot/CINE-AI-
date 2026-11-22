@@ -307,27 +307,93 @@ function sceneMotion(scene,time,duration,w,h,index){
 function stableCharacterHue(){let n=0;for(const ch of (storyboard?.title||'CINE AI'))n=(n*31+ch.charCodeAt(0))|0;return Math.abs(n)%360}
 function drawCharacter(ctx,x,y,scale,time,index,horse){ctx.save();ctx.translate(x,y+Math.sin(time*5+index)*7);ctx.scale(scale,scale);const hue=(stableCharacterHue()+22)%360,color='hsl('+hue+' 62% 53%)',dark='hsl('+hue+' 45% 27%)';ctx.lineCap='round';ctx.lineJoin='round';ctx.fillStyle='rgba(9,12,22,.22)';ctx.beginPath();ctx.ellipse(0,8,55,12,0,0,Math.PI*2);ctx.fill();if(horse){const stride=Math.sin(time*7+index)*12;ctx.strokeStyle='#352b34';ctx.lineWidth=8;for(const leg of [-25,20]){ctx.beginPath();ctx.moveTo(leg,16);ctx.lineTo(leg+stride,65);ctx.stroke()}ctx.fillStyle='#8c9db2';ctx.beginPath();ctx.ellipse(0,-4,56,29,0,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.ellipse(37,-24,18,31,-.48,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.ellipse(49,-49,15,13,-.2,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#30283a';ctx.lineWidth=9;ctx.beginPath();ctx.moveTo(-48,-5);ctx.quadraticCurveTo(-75,-30+stride*.2,-72,-47);ctx.stroke();ctx.fillStyle='#262738';ctx.beginPath();ctx.ellipse(27,-43,7,14,-.4,0,Math.PI*2);ctx.fill();ctx.fillStyle='#171d2c';ctx.beginPath();ctx.arc(54,-50,2.4,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#342b35';ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(30,-38);ctx.quadraticCurveTo(44,-17,54,-6);ctx.stroke()}else{const swing=Math.sin(time*7+index)*.55;ctx.strokeStyle=dark;ctx.lineWidth=11;ctx.beginPath();ctx.moveTo(-14,14);ctx.lineTo(-18+Math.sin(swing)*18,50);ctx.lineTo(-28+Math.sin(swing)*28,74);ctx.moveTo(14,14);ctx.lineTo(18-Math.sin(swing)*18,50);ctx.lineTo(28-Math.sin(swing)*28,74);ctx.stroke();ctx.fillStyle=color;ctx.beginPath();ctx.ellipse(0,-7,24,34,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle=color;ctx.lineWidth=10;ctx.beginPath();ctx.moveTo(-17,-16);ctx.lineTo(-34,2+Math.sin(swing)*12);ctx.moveTo(17,-16);ctx.lineTo(34,2-Math.sin(swing)*12);ctx.stroke();ctx.fillStyle='#f1c8a8';ctx.beginPath();ctx.arc(0,-52,21,0,Math.PI*2);ctx.fill();ctx.fillStyle='#372d3d';ctx.beginPath();ctx.arc(0,-58,22,Math.PI,Math.PI*2);ctx.fill();ctx.fillRect(-21,-59,42,9);ctx.fillStyle='#252539';ctx.beginPath();ctx.arc(-7,-51,2,0,Math.PI*2);ctx.arc(7,-51,2,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#8b4550';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,-44,6,.2,Math.PI-.2);ctx.stroke()}ctx.restore()}
 function drawStickmanCharacter(ctx,x,y,scale,time,index,text=''){
+ const action=(text||'').toLowerCase();
+ const run=/run|chase|escape|charge|march|दौड़|भाग|पीछा/.test(action);
+ const jump=/jump|leap|hop|vault|छलांग|कूद/.test(action);
+ const fight=/fight|attack|strike|battle|punch|kick|sword|clash|युद्ध|लड़|वार/.test(action);
+ const defend=/defend|block|shield|parry|guard|बचाव|रक्षा/.test(action);
+ const fall=/fall|hit|knock|stumble|गिर|टक्कर/.test(action);
+ const celebrate=/celebrat|victory|cheer|raise arms|जश्न|जीत/.test(action);
+ const phase=time*7.2+index*1.17;
+ const gait=run?Math.sin(phase):Math.sin(phase*.52)*.12;
+ const attackWave=Math.sin(time*5.4+index*.8);
+ const attack=Math.max(0,attackWave);
+ const jumpLift=jump?(Math.sin(time*3.1+index*.65)*.5+.5)*34:0;
+ const crouch=defend?10:fall?8:0;
+ const lean=fall?-.62:fight?(attack>.15?.20:-.08):run?.10:jump?-.08:0;
+ const hue=(stableCharacterHue()+index*43+360)%360;
+ const cloth='hsl('+hue+' 67% 48%)';
+ const trim='hsl('+hue+' 78% 76%)';
+ const dark='#17202b';
+ const line=(ctx,x1,y1,x2,y2,width,color)=>{
+  ctx.strokeStyle=color||dark;ctx.lineWidth=width;ctx.lineCap='round';ctx.lineJoin='round';
+  ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+ };
  ctx.save();
- const action=(text||'').toLowerCase(),running=/run|chase|escape|charge|दौड़|भाग/.test(action),jumping=/jump|leap|उछल|छलांग/.test(action),fighting=/fight|attack|defend|battle|युद्ध|लड़/.test(action);
- const swing=running?Math.sin(time*8+index)*20:Math.sin(time*2+index)*4,arm=running?Math.sin(time*8+index+Math.PI)*17:fighting?Math.sin(time*5+index)*13:Math.sin(time*2.5+index)*5,lift=jumping?Math.max(0,Math.sin(time*3+index))*16:0;
- const hue=stableCharacterHue(),cloth='hsl('+hue+' 62% 48%)',trim='hsl('+hue+' 70% 72%)';
- ctx.translate(x,y+Math.sin(time*3+index)*2-lift);ctx.scale(scale,scale);ctx.lineCap='round';ctx.lineJoin='round';
- ctx.fillStyle='rgba(0,0,0,.25)';ctx.beginPath();ctx.ellipse(0,9,43,9,0,0,Math.PI*2);ctx.fill();
- ctx.strokeStyle='#10131b';ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(0,-3);ctx.lineTo(-13+swing*.35,31);ctx.lineTo(-23+swing,65);ctx.moveTo(0,-3);ctx.lineTo(13-swing*.35,31);ctx.lineTo(23-swing,65);ctx.stroke();
- ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(-23+swing,65);ctx.lineTo(-35+swing,68);ctx.moveTo(23-swing,65);ctx.lineTo(35-swing,68);ctx.stroke();
- ctx.fillStyle=cloth;ctx.beginPath();ctx.moveTo(-10,-43);ctx.lineTo(10,-43);ctx.lineTo(16,-3);ctx.lineTo(-16,-3);ctx.closePath();ctx.fill();
- ctx.strokeStyle='#10131b';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(0,-43);ctx.lineTo(0,-4);ctx.stroke();
- ctx.strokeStyle=trim;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-12,-9);ctx.lineTo(12,-9);ctx.stroke();
- ctx.fillStyle='#d9b66f';ctx.fillRect(-11,-13,22,4);ctx.strokeStyle=trim;ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(5,-38);ctx.lineTo(20,-18);ctx.stroke();
- ctx.strokeStyle='#10131b';ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(-9,-36);ctx.lineTo(-25-arm*.35,-18);ctx.lineTo(-32-arm,fighting?-40:3+arm);ctx.moveTo(9,-36);ctx.lineTo(25+arm*.35,-18);ctx.lineTo(32+arm,fighting?-28:3-arm);ctx.stroke();
- ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(0,-62,17,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#10131b';ctx.lineWidth=5;ctx.stroke();
- ctx.fillStyle='#10131b';ctx.beginPath();ctx.arc(-5,-64,1.8,0,Math.PI*2);ctx.arc(5,-64,1.8,0,Math.PI*2);ctx.fill();
- ctx.strokeStyle='#10131b';ctx.lineWidth=1.8;ctx.beginPath();ctx.arc(0,-57,4,.15,Math.PI-.15);ctx.stroke();
- const historical=/(king|maharana|pratap|rajput|warrior|soldier|emperor|ruler|queen|राजा|महाराणा|योद्धा|सैनिक|सम्राट)/i.test((text||'')+' '+(storyboard?.title||''));
- ctx.fillStyle=historical?'#c58a42':'#252a36';ctx.beginPath();ctx.ellipse(0,-77,19,7,0,Math.PI,Math.PI*2);ctx.fill();
- ctx.fillStyle=trim;ctx.fillRect(-13,-80,26,4);
- if(historical){ctx.fillStyle='#b94d45';ctx.beginPath();ctx.moveTo(9,-78);ctx.quadraticCurveTo(25,-73,21,-61);ctx.lineTo(13,-67);ctx.closePath();ctx.fill();}
+ ctx.translate(x,y-jumpLift+(run?Math.abs(Math.sin(phase*2))*3:Math.sin(time*3+index)*1.5));
+ ctx.scale(scale,scale);
+ ctx.lineCap='round';ctx.lineJoin='round';
+ ctx.fillStyle='rgba(0,0,0,.24)';
+ ctx.beginPath();ctx.ellipse(0,7,run?34:29,6,0,0,Math.PI*2);ctx.fill();
+ ctx.rotate(lean);
+ const hipY=-2,shoulderY=-39;
+ // Legs use separate hip, knee and foot joints for readable run/jump/fall poses.
+ let leftKneeX=-15+gait*17,rightKneeX=15-gait*17;
+ let leftKneeY=30-(jump?Math.abs(gait)*7:0),rightKneeY=30-(jump?Math.abs(gait)*7:0);
+ let leftFootX=-24-gait*25,rightFootX=24+gait*25;
+ let leftFootY=65,rightFootY=65;
+ if(jump){leftKneeX=-19;rightKneeX=19;leftKneeY=22;rightKneeY=22;leftFootX=-30-gait*8;rightFootX=30+gait*8;leftFootY=48;rightFootY=48}
+ if(defend){leftKneeX=-20;rightKneeX=20;leftKneeY=25;rightKneeY=25;leftFootX=-31;rightFootX=31}
+ if(fall){leftKneeX=-24;rightKneeX=22;leftKneeY=35;rightKneeY=22;leftFootX=-39;rightFootX=37}
+ line(ctx,-8,hipY,leftKneeX,leftKneeY,8,dark);
+ line(ctx,leftKneeX,leftKneeY,leftFootX,leftFootY,7,dark);
+ line(ctx,8,hipY,rightKneeX,rightKneeY,8,dark);
+ line(ctx,rightKneeX,rightKneeY,rightFootX,rightFootY,7,dark);
+ line(ctx,leftFootX,leftFootY,leftFootX+13,leftFootY,8,dark);
+ line(ctx,rightFootX,rightFootY,rightFootX+13,rightFootY,8,dark);
+ // Torso and belt.
+ ctx.fillStyle=cloth;ctx.beginPath();ctx.moveTo(-12,-42);ctx.lineTo(12,-42);ctx.lineTo(16,-5);ctx.lineTo(-15,-5);ctx.closePath();ctx.fill();
+ ctx.strokeStyle=dark;ctx.lineWidth=4;ctx.stroke();
+ line(ctx,0,-39,0,-5,4,dark);
+ ctx.fillStyle='#d8b66c';ctx.fillRect(-12,-13,24,5);
+ ctx.fillStyle=trim;ctx.fillRect(-12,-8,24,3);
+ // Arms: a wind-up and follow-through on attacks; a raised guard on defence.
+ const shoulderL={x:-10,y:shoulderY},shoulderR={x:10,y:shoulderY};
+ let elbowLX=-25,elbowLY=-17,handLX=-33,handLY=4;
+ let elbowRX=25,elbowRY=-18,handRX=34,handRY=3;
+ if(run){elbowLX=-23-gait*7;elbowLY=-18;handLX=-32-gait*15;handLY=-5-gait*14;elbowRX=23+gait*7;elbowRY=-18;handRX=32+gait*15;handRY=-5+gait*14}
+ if(jump){elbowLX=-24;elbowLY=-55;handLX=-35;handLY=-70;elbowRX=24;elbowRY=-55;handRX=35;handRY=-70}
+ if(fight){elbowRX=24+attack*8;elbowRY=-29-attack*4;handRX=39+attack*42;handRY=-23-attack*16;elbowLX=-24;elbowLY=-25;handLX=-36;handLY=-8}
+ if(defend){elbowLX=-24;elbowLY=-54;handLX=-18;handLY=-70;elbowRX=25;elbowRY=-54;handRX=18;handRY=-70}
+ if(celebrate){elbowLX=-25;elbowLY=-61;handLX=-39;handLY=-78;elbowRX=25;elbowRY=-61;handRX=39;handRY=-78}
+ if(fall){elbowLX=-25;elbowLY=-8;handLX=-43;handLY=7;elbowRX=24;elbowRY=-4;handRX=43;handRY=8}
+ line(ctx,shoulderL.x,shoulderL.y,elbowLX,elbowLY,8,dark);
+ line(ctx,elbowLX,elbowLY,handLX,handLY,7,dark);
+ line(ctx,shoulderR.x,shoulderR.y,elbowRX,elbowRY,8,dark);
+ line(ctx,elbowRX,elbowRY,handRX,handRY,7,dark);
+ ctx.fillStyle='#f1c9a7';ctx.beginPath();ctx.arc(handLX,handLY,4.5,0,Math.PI*2);ctx.arc(handRX,handRY,4.5,0,Math.PI*2);ctx.fill();
+ // Sword/weapon is attached to the attacking hand, not floating at screen centre.
+ if(fight){
+  const tipX=handRX+34+attack*13,tipY=handRY-42-attack*8;
+  line(ctx,handRX,handRY,tipX,tipY,4,'#dce7f2');
+  line(ctx,handRX-7,handRY-5,handRX+9,handRY+8,5,'#b88a4e');
+  ctx.fillStyle='rgba(255,236,166,'+(0.25+attack*.55)+')';
+  ctx.beginPath();ctx.arc(tipX,tipY,3+attack*3,0,Math.PI*2);ctx.fill();
+ }
+ // Head, hair/helmet and face.
+ ctx.fillStyle='#f1c9a7';ctx.beginPath();ctx.arc(0,-62,16,0,Math.PI*2);ctx.fill();
+ ctx.strokeStyle=dark;ctx.lineWidth=4;ctx.stroke();
+ ctx.fillStyle=historicalColorForStickman(action);
+ ctx.beginPath();ctx.arc(0,-67,16,Math.PI,Math.PI*2);ctx.fill();
+ ctx.fillRect(-15,-67,30,5);
+ ctx.fillStyle=dark;ctx.beginPath();ctx.arc(-5,-61,1.8,0,Math.PI*2);ctx.arc(5,-61,1.8,0,Math.PI*2);ctx.fill();
+ ctx.strokeStyle='#7c3f3c';ctx.lineWidth=1.8;ctx.beginPath();ctx.arc(0,-55,4,.15,Math.PI-.15);ctx.stroke();
+ // Small chest insignia differentiates characters without changing the stickman silhouette.
+ ctx.fillStyle=trim;ctx.fillRect(-3,-34,6,9);
  ctx.restore();
+}
+function historicalColorForStickman(action){
+ return /(king|maharana|pratap|rajput|warrior|soldier|emperor|ruler|queen|राजा|महाराणा|योद्धा|सैनिक|सम्राट)/i.test((action||'')+' '+(storyboard?.title||''))?'#c58a42':'#252a36';
 }
 function drawPromptSubject(ctx,x,y,scale,time,index,text){
  const t=(text||'').toLowerCase();
