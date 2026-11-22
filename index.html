@@ -315,7 +315,7 @@ function drawStickmanCharacter(ctx,x,y,scale,time,index,text=''){
  const fall=/fall|hit|knock|stumble|गिर|टक्कर/.test(action);
  const celebrate=/celebrat|victory|cheer|raise arms|जश्न|जीत/.test(action);
  const phase=time*7.2+index*1.17;
- const gait=run?Math.sin(phase):Math.sin(phase*.52)*.12;
+ const gait=run?Math.sin(phase):0;
  const attackWave=Math.sin(time*5.4+index*.8);
  const attack=Math.max(0,attackWave);
  const jumpLift=jump?(Math.sin(time*3.1+index*.65)*.5+.5)*34:0;
@@ -330,7 +330,7 @@ function drawStickmanCharacter(ctx,x,y,scale,time,index,text=''){
   ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
  };
  ctx.save();
- ctx.translate(x,y-jumpLift+(run?Math.abs(Math.sin(phase*2))*3:Math.sin(time*3+index)*1.5));
+ ctx.translate(x,y-jumpLift+(run?Math.abs(Math.sin(phase*2))*3:0));
  ctx.scale(scale,scale);
  ctx.lineCap='round';ctx.lineJoin='round';
  ctx.fillStyle='rgba(0,0,0,.24)';
@@ -526,46 +526,17 @@ $('maharanaPreset').onclick=()=>{
 };
 $('exportBtn').onclick=download;$('saveBtn').onclick=()=>{if(!storyboard){alert('Create a movie plan first.');return}try{localStorage.setItem('cine-ai-storyboard-v1',JSON.stringify(storyboard));alert('Storyboard saved in this browser.')}catch(e){alert('Browser storage is full. Export the JSON instead.')}};
 
-/* CINE AI ensemble-action upgrade: add interacting actors and action beats to every browser-rendered scene. */
-(function installEnsembleActionUpgrade(){
+/* CINE AI action cleanup: keep all props and actors attached to the storyboard's main character. */
+(function installActionCleanup(){
  const originalDrawAnimatedFrame=drawAnimatedFrame;
- function drawActionProps(ctx,w,h,time,index,action){
-  const t=(action||'').toLowerCase(),fight=/fight|battle|attack|defend|sword|war|clash|युद्ध|लड़ाई|तलवार/.test(t),train=/train|practice|learn|teach|अभ्यास|सीख/.test(t),march=/march|army|soldier|troop|prepare|commander|सेना|सैनिक|तैयारी/.test(t);
-  const k=Math.min(w/960,h/540);
-  ctx.save();ctx.scale(k,k);
-  if(fight||train){
-   const swing=Math.sin(time*7+index)*.55;
-   ctx.strokeStyle='#d9dce5';ctx.lineWidth=5;ctx.lineCap='round';
-   ctx.beginPath();ctx.moveTo(480,350);ctx.lineTo(480+Math.cos(swing)*78,350+Math.sin(swing)*-55);ctx.stroke();
-   ctx.strokeStyle='#f2c878';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(480+Math.cos(swing)*78,350+Math.sin(swing)*-55);ctx.lineTo(480+Math.cos(swing)*78+12,350+Math.sin(swing)*-55-12);ctx.stroke();
-   if(fight){ctx.globalAlpha=.55;ctx.strokeStyle='#fff0b2';ctx.lineWidth=3;ctx.beginPath();ctx.arc(480,330,64,-.8+swing,.5+swing);ctx.stroke();ctx.globalAlpha=1}
-  }
-  if(march){for(let n=0;n<5;n++){const x=115+n*68+Math.sin(time*5+n)*5,y=372+(n%2)*7;drawStickmanCharacter(ctx,x,y,.52,time,n+index,'soldiers marching and preparing for battle')} }
-  if(fight||train){
-   const leftX=330,rightX=630,baseY=395,sc=.68;
-   drawStickmanCharacter(ctx,leftX,baseY,sc,time,index+21,train?'training and raising a sword':'fighting and attacking with a sword');
-   drawStickmanCharacter(ctx,rightX,baseY,sc,time,index+22,train?'teacher demonstrating a sword defence':'opponent defending and fighting');
-  }else if(/discuss|meet|talk|council|messenger|advise|सलाह|संदेश|बात/.test(t)){
-   drawStickmanCharacter(ctx,330,395,.66,time,index+31,'standing and gesturing while explaining');
-   drawStickmanCharacter(ctx,625,395,.66,time,index+32,'listening and reacting to the speaker');
-   ctx.fillStyle='rgba(245,224,180,.9)';ctx.fillRect(452,305,56,3);ctx.fillRect(472,293,3,27);
-  }else if(/ride|horse|chetak|cavalry|घोड़ा|घुड़/.test(t)){
-   drawCharacter(ctx,310,400,.78,time,index+41,true);
-   drawCharacter(ctx,650,400,.78,time,index+42,true);
-   drawStickmanCharacter(ctx,310,365,.55,time,index+43,'riding and galloping');
-   drawStickmanCharacter(ctx,650,365,.55,time,index+44,'riding and galloping');
-  }else if(/salute|celebrat|victory|pride|kingdom|welcome|सम्मान|जश्न/.test(t)){
-   for(let n=0;n<4;n++)drawStickmanCharacter(ctx,170+n*205,400,.58,time,n+index+50,'celebrating and raising arms');
-  }
-  ctx.restore();
- }
  drawAnimatedFrame=function(ctx,canvas,scene,index,count,localTime,sceneDuration){
+  // Do not inject screen-centred swords, slash arcs, arbitrary extra actors or props.
+  // The original frame renderer draws only the subject described by this scene.
   originalDrawAnimatedFrame(ctx,canvas,scene,index,count,localTime,sceneDuration);
-  drawActionProps(ctx,canvas.width,canvas.height,localTime,index,[scene.title,scene.action,scene.visual_prompt].join(' '));
  };
  const notice=document.createElement('div');
  notice.className='notice';
- notice.innerHTML='<b>ANIMATED ACTION MODE ENABLED</b><br>Scenes now stage multiple classic stickman characters with interaction, combat/training beats, marching groups and moving props where the story calls for them. Ollama prompts also request shot-by-shot action instead of static slideshow scenes.';
+ notice.innerHTML='<b>STORY-DRIVEN ACTION</b><br>Only characters and objects described by the current scene are rendered. No floating centre-screen weapons or automatically added actors.';
  const renderButton=document.getElementById('generate');
  if(renderButton?.parentNode)renderButton.parentNode.insertBefore(notice,renderButton);
 })();
