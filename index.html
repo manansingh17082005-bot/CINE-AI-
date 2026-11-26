@@ -18,6 +18,16 @@
 <div class="field"><label>SCENE-BY-SCENE DETAILS (OPTIONAL)</label><textarea id="sceneDetails" style="min-height:125px" placeholder="Scene 1: Show the rainy street at night, with blue puddles and warm yellow windows.\nScene 2: The paper boat floats past a red umbrella.\nScene 3: A friendly cat helps it reach a bright canal.\nEnding: The boat finds a child waiting at the door."></textarea><span class="small">Include what we see, who appears, colors, movement, mood, and how each scene ends.</span></div><div class="row"><button id="maharanaPreset">Load Maharana Pratap story</button><span class="small">Loads a short historical scene plan and Hindi narration script</span></div>
 <div class="row"><div class="field"><label>MOVIE TITLE (OPTIONAL)</label><input id="title" placeholder="The Dragon in the Library"></div><div class="field"><label>DURATION</label><select id="duration"><option value="60">60 seconds</option><option value="75" selected>75 seconds</option><option value="90">90 seconds</option></select></div></div>
 <h3 style="margin-top:18px">02 / Choose your animation style</h3><div class="stylegrid" id="styles"><label class="style active"><input type="radio" name="style" value="2D Minecraft-style side-scrolling world with smooth black stickman action" checked> 2D Minecraft World + Smooth Stickman</label><label class="style"><input type="radio" name="style" value="classic black-line stickman with simple historical costumes"> Classic Stickman + Costume</label><label class="style"><input type="radio" name="style" value="2D cartoon animation"> 2D Cartoon</label><label class="style"><input type="radio" name="style" value="3D cartoon cinematic animation"> 3D Cinematic</label><label class="style"><input type="radio" name="style" value="2D flat-vector motion graphics"> Flat Vector</label></div><p class="small">The selected Minecraft Stickman mode renders a 2D side-scrolling block world with smooth stickman movement directly in your browser. Other styles remain available; 3D clips require a compatible local ComfyUI workflow.</p>
+<div class="scene" id="voxelCharacterPanel" style="margin:14px 0;padding:16px;background:#101722;border-color:#42604f">
+ <div class="eyebrow">MINECRAFT-INSPIRED CAST</div>
+ <h4 style="margin:5px 0 8px">Choose your movie's main character</h4>
+ <p class="small">These are original voxel-style characters drawn by CINE AI. No external game assets are required.</p>
+ <div class="row">
+  <div class="field"><label>MAIN CHARACTER</label><select id="voxelCharacter"><option value="adventurer">Block Adventurer</option><option value="explorer">Explorer</option><option value="villager">Villager</option><option value="zombie">Zombie</option><option value="skeleton">Skeleton</option><option value="knight">Armoured Knight</option><option value="creeper">Creeper</option></select></div>
+  <div class="field"><label>CHARACTER NAME</label><input id="voxelCharacterName" placeholder="e.g. Alex, Arin, or your hero's name"></div>
+ </div>
+ <div class="small" id="voxelCharacterStatus">Voxel character mode is ready. Select the Minecraft-style animation option above to use it.</div>
+</div>
 <div class="row" style="margin-top:14px"><div class="field"><label>VIDEO FRAME</label><select id="ratio"><option value="16:9">16:9 — YouTube / Film</option><option value="9:16">9:16 — Reels / Shorts</option><option value="1:1">1:1 — Square</option></select></div><div class="field"><label>NARRATION LANGUAGE</label><select id="language"><option>Hindi</option><option selected>Hinglish (Hindi + English)</option><option>English</option></select></div><div class="field"><label>NUMBER OF SCENES</label><select id="sceneCount"><option value="5">5 scenes</option><option value="10" selected>10 scenes</option><option value="12">12 scenes</option><option value="15">15 scenes</option></select></div></div>
 <button class="primary" id="generate" style="width:100%;padding:14px;font-size:16px">✦ Build my scenes</button><div id="progress" class="hide"><div id="bar"></div></div><div id="status" class="small" style="margin-top:9px">Ready. Write your idea to begin.</div>
 <div class="notice" style="margin-top:14px"><b>FREE LOCAL ANIMATION</b><br>Stickman, cartoon-style vector scenes and story videos render in your browser. For generated 3D cinematic footage, connect a compatible ComfyUI video workflow. No paid video service is required for the browser-rendered modes.</div>
@@ -663,6 +673,79 @@ $('exportBtn').onclick=download;$('saveBtn').onclick=()=>{if(!storyboard){alert(
  note.innerHTML='<b>2D MINECRAFT STICKMAN MODE</b><br>Side-scrolling voxel-block environments, distinct biomes, smooth stickman movement and the existing multi-character action staging are enabled for the selected style. Browser-rendered; no 3D video model required.';
  const generateButton=document.getElementById('generate');
  if(generateButton?.parentNode)generateButton.parentNode.insertBefore(note,generateButton);
+})();
+
+
+// CINE AI: voxel character movie mode (original block-built characters).
+(function installVoxelMovieCharacters(){
+ const originalSubject=drawPromptSubject;
+ const palette={
+  adventurer:{skin:'#c98f63',shirt:'#2875bd',shirtSide:'#1c548d',pants:'#31558b',hair:'#5a3827',boots:'#343b48'},
+  explorer:{skin:'#e4b58c',shirt:'#477c48',shirtSide:'#315b37',pants:'#76543a',hair:'#a95f2f',boots:'#3e332d'},
+  villager:{skin:'#bd8766',shirt:'#92704a',shirtSide:'#6e5035',pants:'#6b523b',hair:'#594033',boots:'#3c3028'},
+  zombie:{skin:'#69a66b',shirt:'#477c58',shirtSide:'#315a43',pants:'#3e5e8c',hair:'#477b53',boots:'#303b4a'},
+  skeleton:{skin:'#d9d3bd',shirt:'#c9c2aa',shirtSide:'#a49e8d',pants:'#b8b19c',hair:'#d9d3bd',boots:'#8d8879'},
+  knight:{skin:'#c99773',shirt:'#8797a9',shirtSide:'#5d6d7f',pants:'#4c5968',hair:'#47352d',boots:'#303844'},
+  creeper:{skin:'#4c9d55',shirt:'#4c9d55',shirtSide:'#34753d',pants:'#43864a',hair:'#4c9d55',boots:'#34753d'}
+ };
+ function rect(ctx,x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),Math.ceil(w),Math.ceil(h))}
+ function cube(ctx,x,y,w,h,front,side,depth=7){
+  rect(ctx,x,y,w,h,front);
+  ctx.fillStyle=side;ctx.beginPath();ctx.moveTo(x+w,y);ctx.lineTo(x+w+depth,y-depth);ctx.lineTo(x+w+depth,y+h-depth);ctx.lineTo(x+w,y+h);ctx.closePath();ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,.14)';ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+depth,y-depth);ctx.lineTo(x+w+depth,y-depth);ctx.lineTo(x+w,y);ctx.closePath();ctx.fill();
+  ctx.strokeStyle='rgba(12,18,25,.28)';ctx.lineWidth=1.5;ctx.strokeRect(x,y,w,h);
+ }
+ function drawVoxel(ctx,x,y,scale,time,index,description){
+  const kind=$('voxelCharacter')?.value||'adventurer',p=palette[kind]||palette.adventurer;
+  const a=(description||'').toLowerCase(),run=/run|chase|charge|rush|escape|flee|दौड़|भाग/.test(a),jump=/jump|leap|hop|छलांग|कूद/.test(a),fight=/fight|attack|battle|sword|punch|kick|युद्ध|लड़ाई|तलवार/.test(a);
+  const phase=time*7+index*1.3,swing=run?Math.sin(phase)*13:jump?Math.sin(phase)*8: fight?Math.sin(phase*1.4)*5:Math.sin(phase)*2;
+  const lift=jump?Math.max(0,Math.sin(time*3+index)*12):0;
+  ctx.save();ctx.translate(x,y-lift+Math.sin(time*2+index)*1.5);ctx.scale(scale,scale);
+  rect(ctx,-42,76,84,8,'rgba(8,12,18,.20)');
+  if(kind==='creeper'){
+   cube(ctx,-24,-61,48,48,p.skin,p.shirtSide,9);
+   cube(ctx,-18,-8,36,44,p.shirt,p.shirtSide,8);
+   rect(ctx,-15,-48,8,9,'#172b20');rect(ctx,7,-48,8,9,'#172b20');rect(ctx,-8,-31,16,12,'#172b20');
+   cube(ctx,-17,31,14,38,p.shirt,p.shirtSide,5);cube(ctx,3,31,14,38,p.shirt,p.shirtSide,5);
+  }else{
+   // Feet and legs: articulated square pieces.
+   cube(ctx,-19,35,16,31,p.pants,'#27394e',5);cube(ctx,3,35,16,31,p.pants,'#27394e',5);
+   rect(ctx,-20,59+swing*.12,18,12,p.boots);rect(ctx,3,59-swing*.12,18,12,p.boots);
+   // Torso and arms.
+   cube(ctx,-22,-9,44,47,p.shirt,p.shirtSide,8);
+   ctx.save();ctx.translate(-25,-3);ctx.rotate((run?.3: fight?-.45:0)+swing*.008);cube(ctx,-9,0,15,39,p.shirt,p.shirtSide,5);rect(ctx,-8,34,13,10,p.skin);ctx.restore();
+   ctx.save();ctx.translate(25,-3);ctx.rotate((run?-.3:fight?.45:0)-swing*.008);cube(ctx,-6,0,15,39,p.shirt,p.shirtSide,5);rect(ctx,-5,34,13,10,p.skin);ctx.restore();
+   // Square head, face and hair/helmet.
+   cube(ctx,-22,-61,44,43,p.skin,'#9c6d55',8);
+   if(kind==='villager'){rect(ctx,-7,-38,28,8,'#76513d');rect(ctx,11,-35,8,15,'#76513d')}
+   else if(kind==='knight'){cube(ctx,-24,-64,48,15,'#9aa8b8','#657486',7);rect(ctx,-20,-47,40,5,'#d8e1e9');rect(ctx,-7,-44,14,7,'#202c3b')}
+   else if(kind!=='skeleton'){rect(ctx,-22,-63,44,12,p.hair);rect(ctx,-22,-53,8,8,p.hair)}
+   if(kind!=='villager'&&kind!=='knight'){rect(ctx,-12,-43,7,6,kind==='skeleton'?'#3b3a35':'#26313b');rect(ctx,6,-43,7,6,kind==='skeleton'?'#3b3a35':'#26313b');rect(ctx,-4,-31,10,3,'#573c34')}
+   if(kind==='knight'){rect(ctx,-13,-47,26,5,'#26313b')}
+  }
+  // Small block highlights keep the voxel geometry legible at story-video size.
+  rect(ctx,-31,80,62,2,'rgba(255,255,255,.18)');
+  ctx.restore();
+ }
+ window.drawCineVoxelCharacter=drawVoxel;
+ window.drawCineOriginalSubject=originalSubject;
+ drawPromptSubject=function(ctx,x,y,scale,time,index,text){
+  const t=(text||'').toLowerCase();
+  const nonPerson=/paper boat|sailboat|\bboat\b|\bcat\b|kitten|rocket|spaceship|flower|blossom|\bcar\b|truck|\blaptop\b|\bcomputer\b|\bbook\b|notebook|\btree\b|\bcloud\b|\bhouse\b|cottage|नाव|बिल्ली|रॉकेट|फूल|गाड़ी|किताब|पेड़|बादल|घर/i.test(t);
+  if(/minecraft/i.test(storyboard?.style||'')&&!nonPerson){drawVoxel(ctx,x,y,scale,time,index,text);return}
+  originalSubject(ctx,x,y,scale,time,index,text);
+ };
+ const select=$('voxelCharacter');
+ if(select)select.addEventListener('change',()=>{const n=$('voxelCharacterName')?.value?.trim();$('voxelCharacterStatus').textContent='Selected '+select.options[select.selectedIndex].text+(n?' · Character name: '+n:'')+'. Choose Minecraft World + Smooth Stickman style to render this as a block character.'});
+ const styleInput=document.querySelector('input[name=style][value*="Minecraft-style"]');
+ if(styleInput){styleInput.addEventListener('change',()=>{$('voxelCharacterStatus').textContent='Minecraft-style voxel characters are active for the next render.'})}
+ const save=$('saveBtn'),exportBtn=$('exportBtn');
+ function addCastMetadata(){if(storyboard){storyboard.character_style=$('voxelCharacter')?.value||'adventurer';storyboard.character_name=$('voxelCharacterName')?.value?.trim()||''}}
+ save?.addEventListener('click',addCastMetadata);exportBtn?.addEventListener('click',addCastMetadata);
+ const gen=$('generate');
+ gen?.addEventListener('click',()=>setTimeout(addCastMetadata,0));
+ const render=$('renderFilm');
+ render?.addEventListener('click',()=>setTimeout(addCastMetadata,0));
 })();
 
 </script></body></html>
